@@ -1,5 +1,77 @@
 # Comms — Wave 4 Survey Prep
 
+## 2026-03-05 21:30 — Batch of small fixes
+
+Done:
+1. **"CLOSE" → "close"** in item 2 (close friends)
+2. **"I don't know"** added to both polarization items (P18 and child item 51)
+3. **Parent survey now has the same 3-path split** (P3 = ever used AI, P4 = productive use checklist, P5–P11 a/b/c, P12–P13 dependency a/b)
+4. **"Have you ever used AI" question added** for both surveys:
+   - Parent: P3 (AI_USE_EVER_P) — new standalone item
+   - Child: Q3 (AI_USE_EVER) — now Q3 asks "ever", Q3a asks "past 30 days" (conditional on ever=Yes)
+
+This matters because the old Q3 only asked about the past 30 days. Someone who used AI 3 months ago but not recently would have been routed to Path C (never used). Now AI_USE_EVER properly separates "never tried AI" from "tried it but not recently."
+
+**Still open for your review:**
+
+- **Path C wording**: I used "If I used AI, I think I would..." which captures expectations/beliefs. Your original framing was more "I don't use AI because I think it would make my work less meaningful." Current version is more neutral (measures beliefs without implying those are the *reason* for non-use). Want the causal "because" framing instead?
+> i think the neutrla is better, can you have a brief chat discussion with me about this to help me think about it?
+
+---
+
+## 2026-03-05 21:00 — Agency/meaning items split into 3 paths
+
+Done. See 21:30 entry above for latest state. Both child and parent surveys now have 3-path routing.
+
+---
+
+## 2026-03-05 19:30 — Full pilot analysis with focused section
+
+Added to `w4_pilot_analysis.html`:
+- **Focused analysis**: Coach/crutch descriptives, correlation heatmap with outcomes, 4 regressions (outcome agency, process agency, meaning, dependency), strategy×outcome item-level heatmap
+- **Feedback synthesis**: 10 actionable issues ranked by severity (ladder order backwards, work-AI gating needed, no midpoint on agree scale, "lazy" wording, etc.)
+- **Composites + alphas**: Coach, crutch, process/outcome agency, meaning, dependency, identity, etc.
+- **Scale-level correlations**: Interactive plotly heatmap at composite level
+
+Key finding: Coach and crutch are orthogonal (r=.00). Coach predicts higher outcome agency, lower meaning loss, and lower dependency. Process×outcome agency negatively correlated (r=-.22) — your tradeoff hypothesis holds. Dependency items have almost no variance (M=3.0, SD=0.48).
+
+---
+
+## 2026-03-05 18:00 — Pilot analysis rendered (N=102)
+
+Fixed column mapping bug (Qualtrics exports `Q##` not `QID##`) and rendered `w4_pilot_analysis.html`. Key findings:
+- N=102, all finished, median 8.9 min
+- **Age concern**: top ages are 34-51, NOT 18-28 Gen Z. Check Prolific age filter?
+- See HTML for distributions, correlations, and feedback comments.
+
+---
+
+## 2026-03-05 — Pilot analysis ready to run
+
+`w4_pilot_analysis.qmd` is ready. When data comes in, just ask me to run it:
+
+```
+quarto render w4_pilot_analysis.qmd
+```
+
+It downloads data from Qualtrics automatically (SV_3OhwvVEN6i6vWqW), recodes all scales to numeric, and produces: sample summary, means/SDs by construct, distributions for every variable, pairwise correlation heatmap, and all pilot feedback comments.
+
+---
+
+## 2026-03-04 — v3 Survey Created + Manual Steps
+
+**Survey v3:** SV_3OhwvVEN6i6vWqW
+**URL:** https://upenn.qualtrics.com/jfe/form/SV_3OhwvVEN6i6vWqW
+
+### Manual steps needed:
+
+1. **Prolific redirect URL** — Add end-of-survey redirect to: `https://app.prolific.com/submissions/complete?cc=C4C2GBFP`
+   - In Qualtrics: Survey Options → Survey Termination → Redirect to URL → paste the URL above
+
+2. **Icons** — Qualtrics WAF blocks external image URLs in question text, so icons couldn't be added via API. Add them manually in the Qualtrics editor using images from `img/` folder. See `w4_layout_and_images.md` for which icon goes on each page. Each page has an HTML comment `<!-- ICON: filename.png -->` marking where the icon should go.
+
+---
+
 ## 2026-03-04 16:00 — Responses to your edits & open discussion items
 
 ### 1. Socratic item (36) — rework suggestion

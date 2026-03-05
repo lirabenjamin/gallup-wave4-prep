@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gallup Wave 4 Survey Preview</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: #f5f5f5; color: #333; line-height: 1.6; }
+  .container { max-width: 780px; margin: 0 auto; padding: 20px; }
+  h1 { font-size: 1.6rem; margin-bottom: 4px; }
+  h1 small { font-size: 0.85rem; color: #888; font-weight: normal; }
+  .toc { background: #fff; border-radius: 10px; padding: 20px 24px; margin: 16px 0 24px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+  .toc h2 { font-size: 1rem; margin-bottom: 10px; color: #555; }
+  .toc ul { list-style: none; columns: 2; column-gap: 24px; }
+  .toc li { margin-bottom: 4px; break-inside: avoid; }
+  .toc a { text-decoration: none; color: #2563eb; font-size: 0.88rem; }
+  .toc a:hover { text-decoration: underline; }
+  .survey-label { display: inline-block; background: #2563eb; color: #fff; font-size: 0.75rem; font-weight: 600; padding: 3px 10px; border-radius: 12px; margin: 24px 0 8px; }
+  .survey-label.parent { background: #7c3aed; }
+  .page { background: #fff; border-radius: 10px; padding: 24px 28px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,.08); position: relative; }
+  .page-header { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #eee; }
+  .page-header img { width: 48px; height: 48px; opacity: 0.8; }
+  .page-header h3 { font-size: 1.05rem; color: #333; }
+  .gate { display: inline-block; background: #fef3c7; color: #92400e; font-size: 0.75rem; font-weight: 600; padding: 2px 8px; border-radius: 4px; margin-bottom: 10px; }
+  .gate.new { background: #dbeafe; color: #1e40af; }
+  .intro-text { background: #f8fafc; border-left: 3px solid #cbd5e1; padding: 10px 14px; margin-bottom: 14px; font-size: 0.9rem; color: #555; border-radius: 0 6px 6px 0; }
+  .question { margin-bottom: 16px; }
+  .question:last-child { margin-bottom: 0; }
+  .q-text { font-size: 0.95rem; margin-bottom: 6px; }
+  .q-text strong { color: #111; }
+  .q-num { color: #999; font-size: 0.85rem; margin-right: 4px; }
+  .options { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+  .option { background: #f1f5f9; padding: 4px 12px; border-radius: 6px; font-size: 0.82rem; color: #555; }
+  .option.selected { background: #dbeafe; color: #1e40af; }
+  .scale-note { font-size: 0.8rem; color: #888; font-style: italic; margin-bottom: 10px; }
+  .construct-label { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.5px; color: #6366f1; font-weight: 600; margin: 14px 0 6px; }
+  .tentative { border-left: 3px solid #f59e0b; padding-left: 10px; }
+  .tentative-badge { display: inline-block; background: #fef3c7; color: #92400e; font-size: 0.65rem; font-weight: 700; padding: 1px 5px; border-radius: 3px; margin-left: 4px; vertical-align: middle; }
+  /* Path tabs */
+  .path-tabs { display: flex; gap: 0; margin-bottom: 14px; border-radius: 8px; overflow: hidden; border: 1px solid #e2e8f0; }
+  .path-tab { flex: 1; padding: 8px 12px; text-align: center; font-size: 0.82rem; font-weight: 600; cursor: pointer; background: #f8fafc; color: #64748b; border-right: 1px solid #e2e8f0; transition: all 0.15s; }
+  .path-tab:last-child { border-right: none; }
+  .path-tab.active { background: #2563eb; color: #fff; }
+  .path-tab:hover:not(.active) { background: #e2e8f0; }
+  .path-content { display: none; }
+  .path-content.active { display: block; }
+  .path-desc { font-size: 0.8rem; color: #888; margin-bottom: 12px; }
+  /* Checkbox list */
+  .checklist { list-style: none; }
+  .checklist li { padding: 5px 0; font-size: 0.9rem; }
+  .checklist li::before { content: "\2610"; margin-right: 8px; color: #aaa; }
+  .checklist li.exclusive::before { content: "\2612"; color: #ef4444; }
+  /* Slider */
+  .ladder { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; }
+  .ladder span { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; background: #f1f5f9; border-radius: 50%; font-size: 0.8rem; color: #555; }
+  .section-divider { border: none; border-top: 2px dashed #e2e8f0; margin: 8px 0; }
+  @media (max-width: 600px) { .toc ul { columns: 1; } .options { flex-direction: column; } }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>Gallup Wave 4 Survey <small>Preview &mdash; March 2026</small></h1>
+
+<div class="toc">
+  <h2>Contents</h2>
+  <ul>
+    <li><a href="#p-intro">Parent: Intro</a></li>
+    <li><a href="#p-wellbeing">Parent: Well-being</a></li>
+    <li><a href="#p-screening">Parent: AI Screening</a></li>
+    <li><a href="#p-context">Parent: AI Use Context</a></li>
+    <li><a href="#p-agency">Parent: Agency & Meaning</a></li>
+    <li><a href="#p-dependency">Parent: Dependency</a></li>
+    <li><a href="#p-identity">Parent: Identity</a></li>
+    <li><a href="#p-polarization">Parent: Polarization</a></li>
+    <li><a href="#c-wellbeing">Child: Well-being</a></li>
+    <li><a href="#c-friends">Child: Close Friends</a></li>
+    <li><a href="#c-screening">Child: AI Screening</a></li>
+    <li><a href="#c-freq1">Child: AI Frequency (Productivity)</a></li>
+    <li><a href="#c-freq2">Child: AI Frequency (Social)</a></li>
+    <li><a href="#c-adoption">Child: Adoption & Payment</a></li>
+    <li><a href="#c-influence1">Child: AI Influence (Social)</a></li>
+    <li><a href="#c-influence2">Child: AI Influence (Curiosity)</a></li>
+    <li><a href="#c-influence3">Child: AI Influence (Confidence)</a></li>
+    <li><a href="#c-peer">Child: Peer AI Use</a></li>
+    <li><a href="#c-strategies">Child: AI Use Strategies</a></li>
+    <li><a href="#c-context">Child: AI Use Context</a></li>
+    <li><a href="#c-agency">Child: Agency & Meaning</a></li>
+    <li><a href="#c-dependency">Child: Dependency</a></li>
+    <li><a href="#c-identity">Child: Identity</a></li>
+    <li><a href="#c-creativity">Child: Creativity</a></li>
+    <li><a href="#c-anxiety">Child: Social Anxiety</a></li>
+    <li><a href="#c-loneliness">Child: Loneliness</a></li>
+    <li><a href="#c-pavani">Child: Pavani / Polarization</a></li>
+    <li><a href="#c-policy">Child: Policy</a></li>
+    <li><a href="#c-life">Child: Life Events</a></li>
+    <li><a href="#c-invite">Child: Invitation</a></li>
+    <li><a href="#c-demo">Child: Demographics</a></li>
+  </ul>
+</div>
+
+<!-- ==================== PARENT SURVEY ==================== -->
+<div class="survey-label parent">Parent Survey</div>
+
+<div class="page" id="p-intro">
+  <div class="page-header"><img src="img/clipboard.png" alt=""><h3>Intro</h3></div>
+  <p style="font-size:0.92rem;">This survey is intended to follow another survey you completed a few months ago. It will help us understand your thoughts about artificial intelligence (AI).</p>
+  <p style="font-size:0.92rem; margin-top:8px;">During the survey, you might notice a few questions that look familiar from the last survey, but that's on purpose. We are interested in what's changed since the last time you filled this survey out.</p>
+</div>
+
+<div class="page" id="p-wellbeing">
+  <div class="page-header"><img src="img/person.png" alt=""><h3>Well-being</h3></div>
+  <div class="question">
+    <div class="q-text">Please imagine a ladder with steps numbered from zero at the bottom to ten at the top. The top represents the <strong>best possible life</strong> for you and the bottom represents the <strong>worst possible life</strong> for you. On which step of the ladder would you say you personally feel you stood <strong>during the past 30 days</strong>?</div>
+    <div class="ladder">
+      <span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span>
+    </div>
+  </div>
+</div>
+
+<div class="page" id="p-screening">
+  <div class="page-header"><img src="img/chat-bubble.png" alt=""><h3>AI Screening</h3></div>
+  <div class="intro-text">The next questions are about having conversations with AI chatbots like ChatGPT, Claude, or Snapchat My AI. We don't mean Siri, autocorrect, or Google search AI summary.</div>
+  <div class="question">
+    <div class="q-text">Have you <strong>ever</strong> used AI chatbots?</div>
+    <div class="options"><span class="option">Yes</span><span class="option">No</span></div>
+  </div>
+  <div class="question">
+    <span class="gate">If ever used AI = Yes</span>
+    <div class="q-text">In the <strong>past 30 days</strong>, have you used AI chatbots?</div>
+    <div class="options"><span class="option">Yes</span><span class="option">No</span></div>
+  </div>
+</div>
+
+<div class="page" id="p-context">
+  <div class="page-header"><img src="img/freelancer.png" alt=""><h3>AI Use Context</h3></div>
+  <span class="gate">If ever used AI = Yes</span>
+  <div class="intro-text">Many people use AI to be more productive or get things done. We want to understand how <strong>you</strong> use AI. Please select <strong>all</strong> of the following that you have used AI for.</div>
+  <div class="question">
+    <div class="q-text">Which of the following have you used AI chatbots for? <strong>Select all that apply.</strong></div>
+    <ul class="checklist">
+      <li>Drafting or editing a professional email</li>
+      <li>Preparing for a meeting or presentation</li>
+      <li>Summarizing documents, articles, or reports</li>
+      <li>Writing a report, proposal, or memo</li>
+      <li>Brainstorming ideas for a project</li>
+      <li>Analyzing or making sense of data</li>
+      <li>Coding or solving technical problems</li>
+      <li>Researching a work-related topic</li>
+      <li>Learning a new skill for work</li>
+      <li>Other work use: <em>[text box]</em></li>
+      <li class="exclusive">I have <strong>never</strong> used AI for work or anything productive</li>
+    </ul>
+  </div>
+  <div style="margin-top:12px; padding:10px 14px; background:#f0fdf4; border-radius:6px; font-size:0.82rem; color:#166534;">
+    <strong>Routing:</strong> Checked any productive use &rarr; <strong>Path A</strong> (work) &nbsp;|&nbsp; Only checked "never" &rarr; <strong>Path B</strong> (personal) &nbsp;|&nbsp; Never used AI &rarr; <strong>Path C</strong> (hypothetical)
+  </div>
+</div>
+
+<div class="page" id="p-agency">
+  <div class="page-header"><img src="img/freelancer.png" alt=""><h3>Agency & Meaning</h3></div>
+  <div class="scale-note">Scale: Strongly disagree / Disagree / Slightly disagree / Slightly agree / Agree / Strongly agree</div>
+
+  <div class="path-tabs" data-group="parent-agency">
+    <div class="path-tab active" onclick="switchPath('parent-agency','pa')">Path A: Uses AI for work</div>
+    <div class="path-tab" onclick="switchPath('parent-agency','pb')">Path B: Personal only</div>
+    <div class="path-tab" onclick="switchPath('parent-agency','pc')">Path C: Never used AI</div>
+  </div>
+
+  <!-- Path A -->
+  <div class="path-content active" id="parent-agency-pa">
+    <div class="intro-text">The next questions are about how, if at all, using AI chatbots has <strong>affected your experience of doing work</strong>.</div>
+    <div class="construct-label">Process Agency</div>
+    <div class="question"><div class="q-text">When I use AI, I still feel <strong>in control</strong> of how my work gets done.</div></div>
+    <div class="question"><div class="q-text">When I use AI, the final product still feels like <strong>it's mine</strong>.</div></div>
+    <div class="question tentative"><div class="q-text">When I use AI, I feel like the work still reflects <strong>my own thinking and approach</strong>. <span class="tentative-badge">TENTATIVE</span></div></div>
+    <div class="construct-label">Outcome Agency</div>
+    <div class="question"><div class="q-text">AI helps me achieve work goals I <strong>couldn't reach on my own</strong>.</div></div>
+    <div class="question"><div class="q-text">AI makes me feel like I can <strong>take on bigger challenges</strong> at work.</div></div>
+    <div class="question tentative"><div class="q-text">AI helps me produce <strong>higher-quality</strong> work than I could on my own. <span class="tentative-badge">TENTATIVE</span></div></div>
+    <div class="construct-label">Meaning</div>
+    <div class="question"><div class="q-text">Because of AI, my work feels <strong>less meaningful</strong> than it used to.</div></div>
+    <div class="question"><div class="q-text">AI does parts of my work that I actually <strong>care about doing myself</strong>.</div></div>
+    <div class="question"><div class="q-text">I take <strong>less pride</strong> in my work when AI helps with it.</div></div>
+  </div>
+
+  <!-- Path B -->
+  <div class="path-content" id="parent-agency-pb">
+    <div class="intro-text">You mentioned you haven't used AI for work. The next questions are about how, if at all, using AI chatbots has <strong>affected your experience of everyday tasks and personal projects</strong>.</div>
+    <div class="construct-label">Process Agency</div>
+    <div class="question"><div class="q-text">When I use AI, I still feel <strong>in control</strong> of how things in my personal life get done.</div></div>
+    <div class="question"><div class="q-text">When I use AI for personal tasks, the result still feels like <strong>it's mine</strong>.</div></div>
+    <div class="question tentative"><div class="q-text">When I use AI, I feel like what I do still reflects <strong>my own thinking and approach</strong>. <span class="tentative-badge">TENTATIVE</span></div></div>
+    <div class="construct-label">Outcome Agency</div>
+    <div class="question"><div class="q-text">AI helps me accomplish personal goals I <strong>couldn't reach on my own</strong>.</div></div>
+    <div class="question"><div class="q-text">AI makes me feel like I can <strong>take on bigger challenges</strong> in my personal life.</div></div>
+    <div class="question tentative"><div class="q-text">AI helps me get <strong>better results</strong> in my personal life than I could on my own. <span class="tentative-badge">TENTATIVE</span></div></div>
+    <div class="construct-label">Meaning</div>
+    <div class="question"><div class="q-text">Because of AI, things I do in my personal life feel <strong>less meaningful</strong> than they used to.</div></div>
+    <div class="question"><div class="q-text">AI handles personal tasks that I actually <strong>care about doing myself</strong>.</div></div>
+    <div class="question"><div class="q-text">I take <strong>less pride</strong> in what I accomplish when AI helps with it.</div></div>
+  </div>
+
+  <!-- Path C -->
+  <div class="path-content" id="parent-agency-pc">
+    <div class="intro-text">You mentioned you haven't used AI chatbots. We're interested in <strong>what you think using AI would be like</strong>.</div>
+    <div class="construct-label">Process Agency</div>
+    <div class="question"><div class="q-text">If I used AI, I think I would still feel <strong>in control</strong> of how my work gets done.</div></div>
+    <div class="question"><div class="q-text">If I used AI, I think the final product would still feel like <strong>it's mine</strong>.</div></div>
+    <div class="question tentative"><div class="q-text">If I used AI, I think the work would still reflect <strong>my own thinking and approach</strong>. <span class="tentative-badge">TENTATIVE</span></div></div>
+    <div class="construct-label">Outcome Agency</div>
+    <div class="question"><div class="q-text">If I used AI, I think it could help me achieve work goals I <strong>can't reach on my own</strong>.</div></div>
+    <div class="question"><div class="q-text">If I used AI, I think I could <strong>take on bigger challenges</strong> at work.</div></div>
+    <div class="question tentative"><div class="q-text">If I used AI, I think it could help me produce <strong>higher-quality</strong> work than I can on my own. <span class="tentative-badge">TENTATIVE</span></div></div>
+    <div class="construct-label">Meaning</div>
+    <div class="question"><div class="q-text">If I used AI, I think my work would feel <strong>less meaningful</strong>.</div></div>
+    <div class="question"><div class="q-text">If I used AI, I think it would do parts of my work that I actually <strong>care about doing myself</strong>.</div></div>
+    <div class="question"><div class="q-text">If I used AI, I think I would take <strong>less pride</strong> in my work.</div></div>
+  </div>
+</div>
+
+<div class="page" id="p-dependency">
+  <div class="page-header"><img src="img/briefcase.png" alt=""><h3>Dependency</h3></div>
+  <span class="gate">Path A and Path B only</span>
+
+  <div class="path-tabs" data-group="parent-dep">
+    <div class="path-tab active" onclick="switchPath('parent-dep','pda')">Path A: Work</div>
+    <div class="path-tab" onclick="switchPath('parent-dep','pdb')">Path B: Personal</div>
+  </div>
+
+  <div class="path-content active" id="parent-dep-pda">
+    <div class="question">
+      <div class="q-text">If <strong>all AI tools suddenly disappeared</strong>, how well could you do your typical work?</div>
+      <div class="options"><span class="option">Much worse than before I started using AI</span><span class="option">Somewhat worse</span><span class="option">About the same</span><span class="option">Somewhat better</span><span class="option">Much better than before I started using AI</span></div>
+    </div>
+    <div class="question">
+      <div class="q-text">Compared to <strong>6 months ago</strong>, my ability to do work <strong>without AI</strong> has...</div>
+      <div class="options"><span class="option">Gotten much worse</span><span class="option">Gotten somewhat worse</span><span class="option">Stayed about the same</span><span class="option">Gotten somewhat better</span><span class="option">Gotten much better</span></div>
+    </div>
+  </div>
+  <div class="path-content" id="parent-dep-pdb">
+    <div class="question">
+      <div class="q-text">If <strong>all AI tools suddenly disappeared</strong>, how well could you handle your typical everyday tasks?</div>
+      <div class="options"><span class="option">Much worse than before I started using AI</span><span class="option">Somewhat worse</span><span class="option">About the same</span><span class="option">Somewhat better</span><span class="option">Much better than before I started using AI</span></div>
+    </div>
+    <div class="question">
+      <div class="q-text">Compared to <strong>6 months ago</strong>, my ability to handle everyday tasks <strong>without AI</strong> has...</div>
+      <div class="options"><span class="option">Gotten much worse</span><span class="option">Gotten somewhat worse</span><span class="option">Stayed about the same</span><span class="option">Gotten somewhat better</span><span class="option">Gotten much better</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="page" id="p-identity">
+  <div class="page-header"><img src="img/person.png" alt=""><h3>Identity & Motivation</h3></div>
+  <div class="question">
+    <div class="q-text">How much do you <strong>enjoy</strong> your work?</div>
+    <div class="options"><span class="option">Not at all</span><span class="option">A little</span><span class="option">Somewhat</span><span class="option">Quite a bit</span><span class="option">A great deal</span></div>
+  </div>
+  <div class="question">
+    <div class="q-text">How important is your work to <strong>who you are as a person</strong>?</div>
+    <div class="options"><span class="option">Not at all important</span><span class="option">Slightly important</span><span class="option">Moderately important</span><span class="option">Very important</span><span class="option">Extremely important</span></div>
+  </div>
+  <div class="question">
+    <div class="q-text">How much do you <strong>pride yourself</strong> on your work?</div>
+    <div class="options"><span class="option">Not at all</span><span class="option">A little</span><span class="option">Somewhat</span><span class="option">Quite a bit</span><span class="option">A great deal</span></div>
+  </div>
+  <div class="question">
+    <div class="q-text">How much of your work requires you to <strong>come up with your own ideas or approaches</strong>?</div>
+    <div class="options"><span class="option">None of it</span><span class="option">A little</span><span class="option">Some</span><span class="option">Most</span><span class="option">All of it</span></div>
+  </div>
+</div>
+
+<div class="page" id="p-polarization">
+  <div class="page-header"><img src="img/globe.png" alt=""><h3>Polarization</h3></div>
+  <span class="gate">If parent is age 18-28</span>
+  <div class="question">
+    <div class="q-text">Do you think AI chatbots will make <strong>political disagreements</strong> in America better or worse?</div>
+    <div class="options"><span class="option">Much worse</span><span class="option">Somewhat worse</span><span class="option">No effect</span><span class="option">Somewhat better</span><span class="option">Much better</span><span class="option">I don't know</span></div>
+  </div>
+</div>
+
+<!-- ==================== CHILD / GEN Z SURVEY ==================== -->
+<div class="survey-label">Child / Gen Z Survey</div>
+
+<div class="page" id="c-wellbeing">
+  <div class="page-header"><img src="img/person.png" alt=""><h3>Well-being</h3></div>
+  <div class="question">
+    <div class="q-text">Please imagine a ladder with steps numbered from zero at the bottom to ten at the top. The top of the ladder represents the <strong>best possible life</strong> for you and the bottom of the ladder represents the <strong>worst possible life</strong> for you. On which step of the ladder would you say you personally feel you stood <strong>during the past 30 days</strong>?</div>
+    <div class="ladder">
+      <span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span>
+    </div>
+  </div>
+</div>
+
+<div class="page" id="c-friends">
+  <div class="page-header"><img src="img/group.png" alt=""><h3>Close Friends</h3></div>
+  <div class="question">
+    <div class="q-text">Please think of a close friend as someone you can talk with about things that are most important to you, including sensitive issues. Overall, about how many <strong>close friends</strong> would you say you have?</div>
+    <div class="options"><span class="option">0</span><span class="option">1</span><span class="option">2-5</span><span class="option">6-10</span><span class="option">More than 10</span></div>
+  </div>
+</div>
+
+<div class="page" id="c-screening">
+  <div class="page-header"><img src="img/chat-bubble.png" alt=""><h3>AI Screening</h3></div>
+  <div class="intro-text">The next questions are about having conversations with AI chatbots like ChatGPT, Claude, or Snapchat My AI. We don't mean Siri, autocorrect, or Google search AI summary.</div>
+  <div class="question">
+    <div class="q-text">Have you <strong>ever</strong> used AI chatbots?</div>
+    <div class="options"><span class="option">Yes</span><span class="option">No</span></div>
+  </div>
+  <div class="question">
+    <span class="gate">If ever used AI = Yes</span>
+    <div class="q-text">In the <strong>past 30 days</strong>, have you used AI chatbots?</div>
+    <div class="options"><span class="option">Yes</span><span class="option">No</span></div>
+  </div>
+</div>
+
+<div class="page" id="c-freq1">
+  <div class="page-header"><img src="img/chat-bubble.png" alt=""><h3>AI Usage Frequency: Productivity</h3></div>
+  <span class="gate">If used AI in past 30 days = Yes</span>
+  <div class="scale-note">Scale: Never / Once / Two or three times / Once a week / Several times per week / Once a day / Several times a day / Almost constantly</div>
+  <div class="question"><div class="q-text">During the past 30 days, about how often did you <strong>ask an AI chatbot something instead of just Googling it</strong>?</div></div>
+  <div class="question"><div class="q-text">During the past 30 days, about how often did you use AI chatbots to <strong>create an image or video</strong>?</div></div>
+  <div class="question"><div class="q-text">During the past 30 days, about how often did you use AI chatbots to <strong>help you with your work</strong>?</div></div>
+  <div class="question"><div class="q-text">During the past 30 days, about how often did you use AI chatbots to <strong>help you with writing</strong>?</div></div>
+  <div class="question"><div class="q-text">During the past 30 days, about how often did you use AI chatbots to <strong>help you with math</strong>?</div></div>
+</div>
+
+<div class="page" id="c-freq2">
+  <div class="page-header"><img src="img/chat-bubble.png" alt=""><h3>AI Usage Frequency: Social & Personal</h3></div>
+  <span class="gate">If used AI in past 30 days = Yes</span>
+  <div class="scale-note">Same 8-point frequency scale</div>
+  <div class="question"><div class="q-text">During the past 30 days, about how often did you use AI chatbots <strong>as if they were a friend</strong>? For example, to talk about your day or just have a personal conversation.</div></div>
+  <div class="question"><div class="q-text">During the past 30 days, about how often did you use AI chatbots <strong>as if they were a boyfriend/girlfriend</strong>?</div></div>
+  <div class="question"><div class="q-text">During the past 30 days, about how often did you use AI chatbots to get <strong>advice about something personal</strong> to you, such as advice about relationships or life decisions?</div></div>
+  <div class="question"><div class="q-text">During the past 30 days, about how often did you use AI chatbots for your work <strong>when you were specifically told not to</strong>?</div></div>
+</div>
+
+<div class="page" id="c-adoption">
+  <div class="page-header"><img src="img/robot.png" alt=""><h3>Adoption & Payment</h3></div>
+  <span class="gate">If ever used AI = Yes</span>
+  <div class="question">
+    <div class="q-text">When did you <strong>first start</strong> using AI chatbots?</div>
+    <div class="options"><span class="option">I don't remember</span><span class="option">Before 2023</span><span class="option">2023</span><span class="option">2024</span><span class="option">2025</span><span class="option">2026</span></div>
+  </div>
+  <div class="question">
+    <div class="q-text">Do you <strong>pay</strong> for an AI chatbot subscription (e.g., ChatGPT Plus)?</div>
+    <div class="options"><span class="option">Yes</span><span class="option">No</span></div>
+  </div>
+</div>
+
+<div class="page" id="c-influence1">
+  <div class="page-header"><img src="img/robot.png" alt=""><h3>AI Influence: Social Behavior</h3></div>
+  <span class="gate">If used AI in past 30 days = Yes</span>
+  <div class="intro-text">The next questions are about how much, if at all, <strong>AI chatbots have influenced your life</strong> during the past 30 days.</div>
+  <div class="scale-note">Scale: Much less ... than I used to / A little less / The same / A little more / Much more</div>
+  <div class="question"><div class="q-text">Because of AI chatbots, I <strong>talked to my friends</strong> during the past 30 days...</div></div>
+  <div class="question"><div class="q-text">Because of AI chatbots, I <strong>used social media</strong> during the past 30 days...</div></div>
+  <div class="question"><div class="q-text">Because of AI chatbots, I <strong>used Google search</strong> during the past 30 days...</div></div>
+</div>
+
+<div class="page" id="c-influence2">
+  <div class="page-header"><img src="img/robot.png" alt=""><h3>AI Influence: Curiosity & Effort</h3></div>
+  <span class="gate">If used AI in past 30 days = Yes</span>
+  <div class="question">
+    <div class="q-text">Because of AI chatbots, during the past 30 days I think I was...</div>
+    <div class="options"><span class="option">Much less <strong>curious</strong></span><span class="option">A little less curious</span><span class="option">Just as curious</span><span class="option">A little more curious</span><span class="option">Much more curious</span></div>
+  </div>
+  <div class="question">
+    <div class="q-text">Because of AI chatbots, during the past 30 days I think I was...</div>
+    <div class="options"><span class="option">Much less <strong>lazy</strong></span><span class="option">A little less lazy</span><span class="option">Just as lazy</span><span class="option">A little more lazy</span><span class="option">Much more lazy</span></div>
+  </div>
+</div>
+
+<div class="page" id="c-influence3">
+  <div class="page-header"><img src="img/robot.png" alt=""><h3>AI Influence: Confidence & Interest</h3></div>
+  <span class="gate">If used AI in past 30 days = Yes</span>
+  <div class="question">
+    <div class="q-text">Because of AI chatbots, were you more or less <strong>confident</strong> when you talked to people during the past 30 days?</div>
+    <div class="options"><span class="option">Much less confident</span><span class="option">A little less</span><span class="option">Neither more nor less</span><span class="option">A little more</span><span class="option">Much more confident</span></div>
+  </div>
+  <div class="question">
+    <div class="q-text">Because of AI chatbots, were you more or less <strong>interested in talking to people</strong> during the past 30 days?</div>
+    <div class="options"><span class="option">Much less interested</span><span class="option">A little less</span><span class="option">Neither more nor less</span><span class="option">A little more</span><span class="option">Much more interested</span></div>
+  </div>
+</div>
+
+<div class="page" id="c-peer">
+  <div class="page-header"><img src="img/group.png" alt=""><h3>Peer AI Use</h3></div>
+  <div class="question">
+    <div class="q-text">How many of your friends interact with AI chatbots <strong>as if they were a friend</strong>? For example, to talk about their day or just have a personal conversation. Please give your best guess.</div>
+    <div class="options"><span class="option">None</span><span class="option">Some</span><span class="option">About half</span><span class="option">Most</span><span class="option">All</span></div>
+  </div>
+</div>
+
+<div class="page" id="c-strategies">
+  <div class="page-header"><img src="img/freelancer.png" alt=""><h3>AI Use Strategies</h3></div>
+  <span class="gate">If used AI in past 30 days = Yes</span>
+  <div class="intro-text">The next questions are about <strong>how you use AI chatbots</strong> to get things done &mdash; not for advice or personal reasons. People use AI in many different ways. There are no right or wrong answers &mdash; we want to know what <strong>you</strong> actually do.</div>
+  <div class="scale-note">Scale: Never / Rarely / Sometimes / Often / Always</div>
+  <div class="construct-label">Coach</div>
+  <div class="question"><div class="q-text">Before asking AI for help, I try to <strong>work through the task on my own first</strong>.</div></div>
+  <div class="question"><div class="q-text">I ask AI <strong>follow-up questions</strong> to make sure I really understand what it told me.</div></div>
+  <div class="question"><div class="q-text">Before I use what AI gives me, I <strong>check whether it's correct</strong>.</div></div>
+  <div class="construct-label">Crutch</div>
+  <div class="question"><div class="q-text">I tend to <strong>use what AI gives me without making changes</strong>.</div></div>
+  <div class="question"><div class="q-text">I use AI to <strong>avoid tasks I find difficult or challenging</strong>.</div></div>
+  <div class="question"><div class="q-text">I find it <strong>hard to get started</strong> on tasks without asking AI first.</div></div>
+</div>
+
+<div class="page" id="c-context">
+  <div class="page-header"><img src="img/freelancer.png" alt=""><h3>AI Use Context</h3></div>
+  <span class="gate">If ever used AI = Yes</span>
+  <div class="intro-text">Many people use AI to be more productive or get things done. We want to understand how <strong>you</strong> use AI. Please select <strong>all</strong> of the following that you have used AI for.</div>
+  <div class="question">
+    <div class="q-text">Which of the following have you used AI chatbots for? <strong>Select all that apply.</strong></div>
+    <ul class="checklist">
+      <li>Drafting or editing a professional email</li>
+      <li>Preparing for a meeting or presentation</li>
+      <li>Summarizing documents, articles, or reports</li>
+      <li>Writing a paper, report, or assignment</li>
+      <li>Brainstorming ideas for a project</li>
+      <li>Analyzing or making sense of data</li>
+      <li>Coding or solving technical problems</li>
+      <li>Researching a school/work-related topic</li>
+      <li>Learning a new skill for school/work</li>
+      <li>Solving a homework or class assignment <span class="gate">age &lt; 18</span></li>
+      <li>Studying or reviewing material for an exam <span class="gate">age &lt; 18</span></li>
+      <li>Other school/work use: <em>[text box]</em></li>
+      <li class="exclusive">I have <strong>never</strong> used AI for school/work or anything productive</li>
+    </ul>
+  </div>
+  <div style="margin-top:12px; padding:10px 14px; background:#f0fdf4; border-radius:6px; font-size:0.82rem; color:#166534;">
+    <strong>Routing:</strong> Checked any productive use &rarr; <strong>Path A</strong> (work/school) &nbsp;|&nbsp; Only checked "never" &rarr; <strong>Path B</strong> (personal) &nbsp;|&nbsp; Never used AI &rarr; <strong>Path C</strong> (hypothetical)
+  </div>
+</div>
+
+<div class="page" id="c-agency">
+  <div class="page-header"><img src="img/freelancer.png" alt=""><h3>Agency & Meaning</h3></div>
+  <div class="scale-note">Scale: Strongly disagree / Disagree / Slightly disagree / Slightly agree / Agree / Strongly agree</div>
+
+  <div class="path-tabs" data-group="child-agency">
+    <div class="path-tab active" onclick="switchPath('child-agency','ca')">Path A: School/Work</div>
+    <div class="path-tab" onclick="switchPath('child-agency','cb')">Path B: Personal</div>
+    <div class="path-tab" onclick="switchPath('child-agency','cc')">Path C: Never used AI</div>
+  </div>
+
+  <!-- Path A -->
+  <div class="path-content active" id="child-agency-ca">
+    <div class="intro-text">The next questions are about how, if at all, using AI chatbots has <strong>affected your experience of doing work</strong>.</div>
+    <div class="construct-label">Process Agency</div>
+    <div class="question"><div class="q-text">When I use AI, I still feel <strong>in control</strong> of how my work gets done.</div></div>
+    <div class="question"><div class="q-text">When I use AI, the final product still feels like <strong>it's mine</strong>.</div></div>
+    <div class="question tentative"><div class="q-text">When I use AI, I feel like the work still reflects <strong>my own thinking and approach</strong>. <span class="tentative-badge">TENTATIVE</span></div></div>
+    <div class="construct-label">Outcome Agency</div>
+    <div class="question"><div class="q-text">AI helps me achieve school/work goals I <strong>couldn't reach on my own</strong>.</div></div>
+    <div class="question"><div class="q-text">AI makes me feel like I can <strong>take on bigger challenges</strong> at school/work.</div></div>
+    <div class="question tentative"><div class="q-text">AI helps me produce <strong>higher-quality</strong> work than I could on my own. <span class="tentative-badge">TENTATIVE</span></div></div>
+    <div class="construct-label">Meaning</div>
+    <div class="question"><div class="q-text">Because of AI, my work feels <strong>less meaningful</strong> than it used to.</div></div>
+    <div class="question"><div class="q-text">AI does parts of my work that I actually <strong>care about doing myself</strong>.</div></div>
+    <div class="question"><div class="q-text">I take <strong>less pride</strong> in my work when AI helps with it.</div></div>
+  </div>
+
+  <!-- Path B -->
+  <div class="path-content" id="child-agency-cb">
+    <div class="intro-text">You mentioned you haven't used AI for school/work. The next questions are about how, if at all, using AI chatbots has <strong>affected your experience of everyday tasks and personal projects</strong>.</div>
+    <div class="construct-label">Process Agency</div>
+    <div class="question"><div class="q-text">When I use AI, I still feel <strong>in control</strong> of how things in my personal life get done.</div></div>
+    <div class="question"><div class="q-text">When I use AI for personal tasks, the result still feels like <strong>it's mine</strong>.</div></div>
+    <div class="question tentative"><div class="q-text">When I use AI, I feel like what I do still reflects <strong>my own thinking and approach</strong>. <span class="tentative-badge">TENTATIVE</span></div></div>
+    <div class="construct-label">Outcome Agency</div>
+    <div class="question"><div class="q-text">AI helps me accomplish personal goals I <strong>couldn't reach on my own</strong>.</div></div>
+    <div class="question"><div class="q-text">AI makes me feel like I can <strong>take on bigger challenges</strong> in my personal life.</div></div>
+    <div class="question tentative"><div class="q-text">AI helps me get <strong>better results</strong> in my personal life than I could on my own. <span class="tentative-badge">TENTATIVE</span></div></div>
+    <div class="construct-label">Meaning</div>
+    <div class="question"><div class="q-text">Because of AI, things I do in my personal life feel <strong>less meaningful</strong> than they used to.</div></div>
+    <div class="question"><div class="q-text">AI handles personal tasks that I actually <strong>care about doing myself</strong>.</div></div>
+    <div class="question"><div class="q-text">I take <strong>less pride</strong> in what I accomplish when AI helps with it.</div></div>
+  </div>
+
+  <!-- Path C -->
+  <div class="path-content" id="child-agency-cc">
+    <div class="intro-text">You mentioned you haven't used AI chatbots. We're interested in <strong>what you think using AI would be like</strong>.</div>
+    <div class="construct-label">Process Agency</div>
+    <div class="question"><div class="q-text">If I used AI, I think I would still feel <strong>in control</strong> of how my work gets done.</div></div>
+    <div class="question"><div class="q-text">If I used AI, I think the final product would still feel like <strong>it's mine</strong>.</div></div>
+    <div class="question tentative"><div class="q-text">If I used AI, I think the work would still reflect <strong>my own thinking and approach</strong>. <span class="tentative-badge">TENTATIVE</span></div></div>
+    <div class="construct-label">Outcome Agency</div>
+    <div class="question"><div class="q-text">If I used AI, I think it could help me achieve school/work goals I <strong>can't reach on my own</strong>.</div></div>
+    <div class="question"><div class="q-text">If I used AI, I think I could <strong>take on bigger challenges</strong> at school/work.</div></div>
+    <div class="question tentative"><div class="q-text">If I used AI, I think it could help me produce <strong>higher-quality</strong> work than I can on my own. <span class="tentative-badge">TENTATIVE</span></div></div>
+    <div class="construct-label">Meaning</div>
+    <div class="question"><div class="q-text">If I used AI, I think my work would feel <strong>less meaningful</strong>.</div></div>
+    <div class="question"><div class="q-text">If I used AI, I think it would do parts of my work that I actually <strong>care about doing myself</strong>.</div></div>
+    <div class="question"><div class="q-text">If I used AI, I think I would take <strong>less pride</strong> in my work.</div></div>
+  </div>
+</div>
+
+<div class="page" id="c-dependency">
+  <div class="page-header"><img src="img/briefcase.png" alt=""><h3>Dependency</h3></div>
+  <span class="gate">Path A and Path B only</span>
+
+  <div class="path-tabs" data-group="child-dep">
+    <div class="path-tab active" onclick="switchPath('child-dep','cda')">Path A: Work</div>
+    <div class="path-tab" onclick="switchPath('child-dep','cdb')">Path B: Personal</div>
+  </div>
+
+  <div class="path-content active" id="child-dep-cda">
+    <div class="question">
+      <div class="q-text">If <strong>all AI tools suddenly disappeared</strong>, how well could you do your typical schoolwork/work?</div>
+      <div class="options"><span class="option">Much worse than before I started using AI</span><span class="option">Somewhat worse</span><span class="option">About the same</span><span class="option">Somewhat better</span><span class="option">Much better than before I started using AI</span></div>
+    </div>
+    <div class="question">
+      <div class="q-text">Compared to <strong>6 months ago</strong>, my ability to do schoolwork/work <strong>without AI</strong> has...</div>
+      <div class="options"><span class="option">Gotten much worse</span><span class="option">Gotten somewhat worse</span><span class="option">Stayed about the same</span><span class="option">Gotten somewhat better</span><span class="option">Gotten much better</span></div>
+    </div>
+  </div>
+  <div class="path-content" id="child-dep-cdb">
+    <div class="question">
+      <div class="q-text">If <strong>all AI tools suddenly disappeared</strong>, how well could you handle your typical everyday tasks?</div>
+      <div class="options"><span class="option">Much worse than before I started using AI</span><span class="option">Somewhat worse</span><span class="option">About the same</span><span class="option">Somewhat better</span><span class="option">Much better than before I started using AI</span></div>
+    </div>
+    <div class="question">
+      <div class="q-text">Compared to <strong>6 months ago</strong>, my ability to handle everyday tasks <strong>without AI</strong> has...</div>
+      <div class="options"><span class="option">Gotten much worse</span><span class="option">Gotten somewhat worse</span><span class="option">Stayed about the same</span><span class="option">Gotten somewhat better</span><span class="option">Gotten much better</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="page" id="c-identity">
+  <div class="page-header"><img src="img/person.png" alt=""><h3>Identity & Motivation</h3></div>
+  <div class="question">
+    <div class="q-text">How much do you <strong>enjoy</strong> your schoolwork/work?</div>
+    <div class="options"><span class="option">Not at all</span><span class="option">A little</span><span class="option">Somewhat</span><span class="option">Quite a bit</span><span class="option">A great deal</span></div>
+  </div>
+  <div class="question">
+    <div class="q-text">How important is your schoolwork/work to <strong>who you are as a person</strong>?</div>
+    <div class="options"><span class="option">Not at all important</span><span class="option">Slightly important</span><span class="option">Moderately important</span><span class="option">Very important</span><span class="option">Extremely important</span></div>
+  </div>
+  <div class="question">
+    <div class="q-text">How much do you <strong>pride yourself</strong> on your schoolwork/work?</div>
+    <div class="options"><span class="option">Not at all</span><span class="option">A little</span><span class="option">Somewhat</span><span class="option">Quite a bit</span><span class="option">A great deal</span></div>
+  </div>
+</div>
+
+<div class="page" id="c-creativity">
+  <div class="page-header"><img src="img/briefcase.png" alt=""><h3>Creativity</h3></div>
+  <span class="gate">If age 18-28 only</span>
+  <div class="question">
+    <div class="q-text">How much of your work requires you to <strong>come up with your own ideas or approaches</strong>?</div>
+    <div class="options"><span class="option">None of it</span><span class="option">A little</span><span class="option">Some</span><span class="option">Most</span><span class="option">All of it</span></div>
+  </div>
+</div>
+
+<div class="page" id="c-anxiety">
+  <div class="page-header"><img src="img/group.png" alt=""><h3>Social Anxiety</h3></div>
+  <div class="intro-text">For these next three statements, please select the answer that best describes how each situation <strong>makes you feel</strong>.</div>
+  <div class="scale-note">Scale: Very nervous / Somewhat nervous / Neither nervous nor relaxed / Somewhat relaxed / Very relaxed</div>
+  <div class="question"><div class="q-text"><strong>Going to a party</strong> makes me feel...</div></div>
+  <div class="question"><div class="q-text"><strong>Being the center of attention</strong> makes me feel...</div></div>
+  <div class="question"><div class="q-text"><strong>Talking with people I don't know very well</strong> makes me feel...</div></div>
+</div>
+
+<div class="page" id="c-loneliness">
+  <div class="page-header"><img src="img/person.png" alt=""><h3>Loneliness</h3></div>
+  <div class="question">
+    <div class="q-text">During the past 30 days, how <strong>lonely</strong> did you feel?</div>
+    <div class="options"><span class="option">Not at all lonely</span><span class="option">Slightly lonely</span><span class="option">Moderately lonely</span><span class="option">Very lonely</span><span class="option">Extremely lonely</span></div>
+  </div>
+  <div class="question">
+    <div class="q-text">During the past 30 days, how often did you feel like you <strong>didn't have any friends</strong>?</div>
+    <div class="options"><span class="option">Never</span><span class="option">Rarely</span><span class="option">Sometimes</span><span class="option">Often</span><span class="option">Always</span></div>
+  </div>
+  <div class="question">
+    <div class="q-text">During the past 30 days, how often did you feel <strong>left out</strong>?</div>
+    <div class="options"><span class="option">Never</span><span class="option">Rarely</span><span class="option">Sometimes</span><span class="option">Often</span><span class="option">Always</span></div>
+  </div>
+</div>
+
+<div class="page" id="c-pavani">
+  <div class="page-header"><img src="img/globe.png" alt=""><h3>Pavani / Polarization</h3></div>
+  <div class="question">
+    <span class="gate">If age &lt; 18</span>
+    <div class="q-text">Which do you think would be more valuable for students your age: AI tools that give individual students personalized help, or AI tools that help students work together?</div>
+    <div class="options"><span class="option">Personalized help</span><span class="option">Help students work together</span><span class="option">Both equally valuable</span><span class="option">Neither valuable</span></div>
+  </div>
+  <hr class="section-divider">
+  <div class="question">
+    <span class="gate">If age 18-28</span>
+    <div class="q-text">Do you think AI chatbots will make <strong>political disagreements</strong> in America better or worse?</div>
+    <div class="options"><span class="option">Much worse</span><span class="option">Somewhat worse</span><span class="option">No effect</span><span class="option">Somewhat better</span><span class="option">Much better</span><span class="option">I don't know</span></div>
+  </div>
+</div>
+
+<div class="page" id="c-policy">
+  <div class="page-header"><img src="img/briefcase.png" alt=""><h3>Policy</h3></div>
+  <div class="question">
+    <div class="q-text">Does your school or employer have a <strong>policy</strong> about AI chatbot use?</div>
+    <div class="options"><span class="option">They ban AI use</span><span class="option">They discourage AI use</span><span class="option">They don't have a policy</span><span class="option">They encourage AI use</span><span class="option">They require AI use</span></div>
+  </div>
+  <div class="question">
+    <span class="gate">If they have a policy</span>
+    <div class="q-text">In the last 12 months, has this <strong>policy changed</strong>?</div>
+    <div class="options"><span class="option">No</span><span class="option">Yes</span></div>
+  </div>
+  <div class="question">
+    <span class="gate">If policy changed = Yes</span>
+    <div class="q-text">Approximately <strong>when</strong> did the policy change? (e.g., June 2025)</div>
+    <div style="background:#f1f5f9; border:1px dashed #ccc; border-radius:6px; padding:8px 14px; color:#999; font-size:0.85rem; margin-top:4px;">Text box</div>
+  </div>
+  <div class="question">
+    <span class="gate">If policy changed = Yes</span>
+    <div class="q-text">Briefly, <strong>what changed</strong>?</div>
+    <div style="background:#f1f5f9; border:1px dashed #ccc; border-radius:6px; padding:8px 14px; color:#999; font-size:0.85rem; margin-top:4px;">Text box</div>
+  </div>
+</div>
+
+<div class="page" id="c-life">
+  <div class="page-header"><img src="img/heart.png" alt=""><h3>Life Events</h3></div>
+  <div class="question">
+    <div class="q-text">In the last 12 months, have you experienced a <strong>breakup</strong>?</div>
+    <div class="options"><span class="option">No</span><span class="option">Yes</span></div>
+  </div>
+  <div class="question">
+    <span class="gate">If breakup = Yes</span>
+    <div class="q-text">Please provide the approximate date (e.g., June 2025):</div>
+    <div style="background:#f1f5f9; border:1px dashed #ccc; border-radius:6px; padding:8px 14px; color:#999; font-size:0.85rem; margin-top:4px;">Text box</div>
+  </div>
+  <div class="question">
+    <div class="q-text">In the last 12 months, have you <strong>relocated</strong> to a new city or neighborhood?</div>
+    <div class="options"><span class="option">No</span><span class="option">Yes</span></div>
+  </div>
+  <div class="question">
+    <span class="gate">If relocated = Yes</span>
+    <div class="q-text">Please provide the approximate date (e.g., June 2025):</div>
+    <div style="background:#f1f5f9; border:1px dashed #ccc; border-radius:6px; padding:8px 14px; color:#999; font-size:0.85rem; margin-top:4px;">Text box</div>
+  </div>
+</div>
+
+<div class="page" id="c-invite">
+  <div class="page-header"><img src="img/robot.png" alt=""><h3>Invitation</h3></div>
+  <div class="question">
+    <div class="q-text">We're developing an <strong>AI coach to help people become better writers</strong>. This app is not yet open to the public. Would you be interested in trying it?</div>
+    <p style="font-size:0.82rem; color:#888; font-style:italic; margin:4px 0 8px;">This is a real invitation. If you say yes, we'll reach out with instructions &mdash; there's no cost or obligation.</p>
+    <div class="options"><span class="option">Yes, I'd like to try the AI writing coach</span><span class="option">No thanks, I'm not interested right now</span></div>
+  </div>
+</div>
+
+<div class="page" id="c-demo">
+  <div class="page-header"><img src="img/clipboard.png" alt=""><h3>Demographics</h3></div>
+  <div class="question">
+    <div class="q-text">What is your <strong>total annual household income</strong>, before taxes?</div>
+    <div class="options"><span class="option">Less than $12,000</span><span class="option">$12,000-$23,999</span><span class="option">$24,000-$35,999</span><span class="option">$36,000-$47,999</span><span class="option">$48,000-$59,999</span><span class="option">$60,000-$89,999</span><span class="option">$90,000-$119,999</span><span class="option">$120,000-$179,999</span><span class="option">$180,000-$239,999</span><span class="option">$240,000 and over</span></div>
+  </div>
+  <div class="question">
+    <div class="q-text">Which of the following best describes your own feelings about your <strong>household's income</strong> these days?</div>
+    <div class="options"><span class="option">Living very well</span><span class="option">Living comfortably</span><span class="option">Getting by</span><span class="option">Finding it difficult</span></div>
+  </div>
+  <div class="question">
+    <div class="q-text">Are you currently <strong>enrolled in higher education</strong>?</div>
+    <div class="options"><span class="option">Yes</span><span class="option">No</span></div>
+  </div>
+  <div class="question">
+    <span class="gate">If enrolled = Yes</span>
+    <div class="q-text">Which of the following are you currently enrolled in? <strong>Select all that apply.</strong></div>
+    <div class="options"><span class="option">Associate degree</span><span class="option">Bachelor's degree</span><span class="option">Graduate degree</span><span class="option">College certificate</span><span class="option">Industry certification</span><span class="option">Other</span></div>
+  </div>
+  <div class="question">
+    <div class="q-text">What is the <strong>highest level of school</strong> you have completed or the highest degree you have received?</div>
+    <div class="options"><span class="option">Less than HS diploma</span><span class="option">HS graduate</span><span class="option">Trade/vocational</span><span class="option">Some college</span><span class="option">Associate degree</span><span class="option">Bachelor's degree</span><span class="option">Some postgrad</span><span class="option">Postgrad/professional degree</span></div>
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<script>
+function switchPath(group, id) {
+  // Hide all content in group
+  document.querySelectorAll('[id^="' + group + '-"]').forEach(el => el.classList.remove('active'));
+  // Deactivate all tabs in group
+  document.querySelector('[data-group="' + group + '"]').querySelectorAll('.path-tab').forEach(t => t.classList.remove('active'));
+  // Show selected
+  document.getElementById(group + '-' + id).classList.add('active');
+  // Activate clicked tab
+  event.target.classList.add('active');
+}
+</script>
+</body>
+</html>
