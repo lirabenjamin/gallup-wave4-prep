@@ -15,7 +15,7 @@ Scale: Strongly disagree / Disagree / Slightly disagree / Slightly agree / Agree
 | Not producing | When I use AI, it feels like **I'm not the one producing** the work. | When I use AI for personal tasks, it feels like **I'm not the one doing things myself**. | If I used AI, I think it would feel like **I'm not the one producing** the work. |
 | **Process agency (positive)** | | | |
 | In control | When I use AI, I still feel **in control** of how my work gets done. | When I use AI, I still feel **in control** of how things in my personal life get done. | If I used AI, I think I would still feel **in control** of how my work gets done. |
-| It's mine | When I use AI, the final product still feels like **it's mine**. | When I use AI for personal tasks, the result still feels like **it's mine**. | If I used AI, I think the final product would still feel like **it's mine**. |
+| I'm doing it | When I use AI, I still feel like **I'm the one doing** the work. | When I use AI for personal tasks, I still feel like **I'm the one doing things myself**. | If I used AI, I think I would still feel like **I'm the one doing** the work. |
 | Own thinking [TENTATIVE] | When I use AI, I feel like the work still reflects **my own thinking and approach**. | When I use AI, I feel like what I do still reflects **my own thinking and approach**. | If I used AI, I think the work would still reflect **my own thinking and approach**. |
 | **Outcome agency** | | | |
 | Bigger goals | AI helps me achieve work goals I **couldn't reach on my own**. | AI helps me accomplish personal goals I **couldn't reach on my own**. | If I used AI, I think it could help me achieve work goals I **can't reach on my own**. |
@@ -23,8 +23,9 @@ Scale: Strongly disagree / Disagree / Slightly disagree / Slightly agree / Agree
 | Higher quality [TENTATIVE] | AI helps me produce **higher-quality** work than I could on my own. | AI helps me get **better results** in my personal life than I could on my own. | If I used AI, I think it could help me produce **higher-quality** work than I can on my own. |
 | **Meaning** | | | |
 | Less meaningful | Because of AI, my work feels **less meaningful** than it used to. | Because of AI, things I do in my personal life feel **less meaningful** than they used to. | If I used AI, I think my work would feel **less meaningful**. |
-| Parts I care about | AI does parts of my work that I actually **care about doing myself**. | AI handles personal tasks that I actually **care about doing myself**. | If I used AI, I think it would do parts of my work that I actually **care about doing myself**. |
 | Less pride | I take **less pride** in my work when AI helps with it. | I take **less pride** in what I accomplish when AI helps with it. | If I used AI, I think I would take **less pride** in my work. |
+| **Standalone (not in scale)** | | | |
+| Parts I care about | AI does parts of my work that I actually **care about doing myself**. | AI handles personal tasks that I actually **care about doing myself**. | If I used AI, I think it would do parts of my work that I actually **care about doing myself**. |
 
 ---
 

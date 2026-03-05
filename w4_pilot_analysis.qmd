@@ -1,0 +1,1039 @@
+---
+title: "Gallup Wave 4 — Pilot Analysis"
+format:
+  html:
+    embed-resources: true
+    toc: true
+    toc-depth: 2
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+
+## Executive Summary {.unnumbered}
+
+```{r}
+#| label: exec-setup
+#| output: false
+
+# Load pre-computed stats (saved by exec-summary-compute chunk below)
+# On first render this file won't exist yet; render twice or run chunks in order
+if (file.exists("exec_summary_stats.rds")) {
+  exec <- readRDS("exec_summary_stats.rds")
+} else {
+  exec <- list(n="?", dur="?", age_med="?", cc_r="?", coach_m="?", crutch_m="?",
+               coach_oa="?", coach_pa="?", coach_meaning="?", crutch_oa="?",
+               crutch_dep="?", pa_meaning="?", pa_oa="?", dep_sd="?", dep_m="?", mod_p="?")
+}
+```
+
+We piloted the Gallup Wave 4 survey with **N = `r exec$n`** adults recruited via Prolific (median age `r exec$age_med`, median completion time `r exec$dur` min). The pilot tested new item batteries measuring how people use AI (coach vs. crutch strategies), how AI affects their sense of agency (process and outcome), whether AI erodes the meaning of work, and whether people have become dependent on AI. Below are five takeaways.
+
+**1. Coach and crutch are independent dimensions, not opposite poles.** The coach composite (try first, ask follow-ups, check correctness, revise output, ask for feedback) and the crutch indicator ("I use what AI gives me without making changes") were uncorrelated (r = `r exec$cc_r`). This was surprising -- we expected them to be negatively correlated, with deliberate users being less passive and vice versa. Instead, they capture genuinely independent dimensions: someone can be both a coach-style user *and* a passive accepter in different contexts. Coach use was moderate (M = `r exec$coach_m` on 0--4), crutch use was low (M = `r exec$crutch_m`).
+
+**2. Coach use predicts better outcomes; crutch use is not as bad as expected.** Coach use is associated with higher outcome agency (r = `r exec$coach_oa`), higher process agency (r = `r exec$coach_pa`), and more meaningful work (r = `r exec$coach_meaning`). It is the only predictor of meaning in a regression controlling for crutch use and AI frequency. Crutch use, surprisingly, also predicts higher outcome agency (r = `r exec$crutch_oa`) and greater dependency (r = `r exec$crutch_dep`) -- but is unrelated to meaning or process agency. Even passive use makes people feel more capable, though it does make them more reliant on AI. This complicates a simple "coach good, crutch bad" narrative.
+
+**3. Meaning is tied to process, not outcomes.** Process agency and meaning are strongly correlated (r = `r exec$pa_meaning`): people who feel control over *how* their work gets done also find it meaningful. Outcome agency is weakly related to meaning. This suggests that meaning erodes through the process channel -- when AI takes over how work is done -- rather than the outcome channel. Helping people achieve more does not compensate for the loss of ownership over the work itself.
+
+**4. Identity moderates the process agency → meaning link -- but in the opposite direction we expected (p = `r exec$mod_p`).** We predicted that people with strong work identity would be *more* affected by process agency loss, since their work matters more to them and giving it up should hurt more. Instead, the opposite is true: among **low-identity** workers, losing process control strongly predicts meaning loss, while **high-identity** workers maintain meaning even when AI takes over parts of the process. One interpretation: high-identity workers have a stable, internalized sense that their work is meaningful, and this acts as a buffer against the process disruption caused by AI. Low-identity workers, lacking that anchor, are more vulnerable to feeling that AI has made their work pointless. Outcome agency × identity is null.
+
+**5. Several items need revision before the main wave.**
+
+- *Ladder scale*: Response options are displayed in the wrong order (0 at top, despite the text saying "zero at the bottom"). Multiple participants flagged this; some may have answered incorrectly. **Fix: reverse the display order.**
+- *Agency/meaning items*: These assume AI use for work. Multiple participants asked "What if I don't use AI for work?" -- the items become unanswerable. **Fix: gate on work-related AI use or add a "does not apply" option.**
+- *Dependency items*: The two dependency items ask "If all AI tools suddenly disappeared, how well could you do your typical work?" (1 = Much worse → 5 = Much better) and "Compared to 6 months ago, my ability to do work without AI has..." (1 = Gotten much worse → 5 = Gotten much better). Both produced near-zero variance (SD = `r exec$dep_sd`, M = `r exec$dep_m` on a 1--5 scale). Almost everyone selected the midpoint ("about the same" / "stayed about the same"). This likely reflects two problems: (a) many respondents don't use AI heavily enough for work to feel dependent, and (b) the "disappeared" framing is too hypothetical -- people may not have a clear sense of how they'd perform. **Fix: consider more concrete, behavioral dependency items (e.g., "I find it hard to start work without AI" or "I feel anxious when I can't access AI tools") and gate on AI-for-work users.**
+
+---
+
+```{r}
+#| label: setup
+library(tidyverse)
+library(qualtRics)
+library(gt)
+library(corrplot)
+library(scales)
+
+dotenv <- readLines(".env")
+env <- setNames(
+  sub("^[^=]+=", "", dotenv),
+  sub("=.*", "", dotenv)
+)
+qualtrics_api_credentials(
+  api_key = env[["QUALTRICS_API_TOKEN"]],
+  base_url = env[["QUALTRICS_DATA_CENTER"]],
+  overwrite = TRUE, install = FALSE
+)
+
+raw <- fetch_survey("SV_3OhwvVEN6i6vWqW", force_request = TRUE, label = TRUE,
+                    convert = FALSE, add_column_map = FALSE)
+```
+
+```{r}
+#| label: rename-recode
+
+rename_map <- c(
+  Q3  = "Q1_ladder",
+  Q6  = "Q2_friends",
+  Q9  = "AI_USE_YN",
+  Q12 = "Q4_google",    Q13 = "Q5_image",      Q14 = "Q6_work",
+  Q15 = "Q7_writing",   Q16 = "Q8_math",
+  Q19 = "Q9_friend",    Q20 = "Q10_romantic",   Q21 = "Q11_advice",
+  Q22 = "Q12_forbidden",
+  Q25 = "W4_adopt",     Q26 = "W4_paid",
+  Q29 = "Q15_infl_friends", Q30 = "Q16_infl_social", Q31 = "Q17_infl_google",
+  Q34 = "Q18_curious",  Q35 = "Q19_lazy",
+  Q38 = "Q20_confident", Q39 = "Q21_interest",
+  Q42 = "Q22_peer_ai",
+  Q45 = "S1_tryfirst",  Q46 = "S2_passive",    Q47 = "S3_socratic",
+  Q48 = "S4_learn",     Q49 = "S5_check",      Q50 = "S6_revise",
+  Q51 = "S7_feedback",
+  Q54 = "A1_lesssay",   Q55 = "A2_notproducing",
+  Q56 = "A3_goals",     Q57 = "A4_challenges",
+  Q60 = "A5_meaningful", Q61 = "A6_careabout",  Q62 = "A7_lesspride",
+  Q65 = "D1_disappeared", Q66 = "D2_skill",
+  Q69 = "ID1_enjoy",    Q70 = "ID2_identity",  Q71 = "ID3_pride",
+  Q72 = "ID4_creativity",
+  Q75 = "SA1_party",    Q76 = "SA2_attention",  Q77 = "SA3_strangers",
+  Q80 = "L1_lonely",    Q81 = "L2_nofriends",   Q82 = "L3_leftout",
+  Q85 = "POL1_polarization",
+  Q88 = "POL_policy",   Q89 = "POL_changed",
+  Q94 = "LIFE_breakup", Q96 = "LIFE_relocate",
+  Q100 = "W4_invite",
+  Q103 = "D_income",    Q104 = "D_income_feel", Q105 = "D_enrolled",
+  Q107 = "D_education", Q108 = "D_age",         Q109 = "D_gender"
+)
+
+# rename_map is old_name = "new_name"; flip for dplyr::rename (new = old)
+flip <- setNames(names(rename_map), rename_map)
+df <- raw |> rename(any_of(flip))
+
+# --- Numeric recoding ---
+freq8 <- c("Never"=0,"Once"=1,"Two or three times"=2,"Once a week"=3,
+           "Several times per week"=4,"Once a day"=5,"Several times a day"=6,"Almost constantly"=7)
+freq5 <- c("Never"=0,"Rarely"=1,"Sometimes"=2,"Often"=3,"Always"=4)
+agree6 <- c("Strongly disagree"=1,"Disagree"=2,"Slightly disagree"=3,
+            "Slightly agree"=4,"Agree"=5,"Strongly agree"=6)
+infl5 <- c("Much less often than I used to"=1,"A little less often than I used to"=2,
+           "The same amount as I used to"=3,"A little more often than I used to"=4,
+           "Much more often than I used to"=5)
+anxiety <- c("Very nervous"=1,"Somewhat nervous"=2,"Neither nervous nor relaxed"=3,
+             "Somewhat relaxed"=4,"Very relaxed"=5)
+change5 <- c("Much less"=1,"A little less"=2,"Just as"=3,"A little more"=4,"Much more"=5)
+lonely_map <- c("Not at all lonely"=1,"Slightly lonely"=2,"Moderately lonely"=3,
+                "Very lonely"=4,"Extremely lonely"=5)
+dep1_map <- c("Much worse than before I started using AI"=1,"Somewhat worse"=2,
+              "About the same"=3,"Somewhat better"=4,"Much better than before I started using AI"=5)
+dep2_map <- c("Gotten much worse"=1,"Gotten somewhat worse"=2,"Stayed about the same"=3,
+              "Gotten somewhat better"=4,"Gotten much better"=5)
+enjoy_map <- c("Not at all"=1,"A little"=2,"Somewhat"=3,"Quite a bit"=4,"A great deal"=5)
+import_map <- c("Not at all important"=1,"Slightly important"=2,"Moderately important"=3,
+                "Very important"=4,"Extremely important"=5)
+creat_map <- c("None of it"=1,"A little"=2,"Some"=3,"Most"=4,"All of it"=5)
+pol_map <- c("Much worse"=1,"Somewhat worse"=2,"No effect"=3,"Somewhat better"=4,"Much better"=5)
+peer_map <- c("None"=1,"Some"=2,"About half"=3,"Most"=4,"All"=5)
+
+recode_col <- function(d, cols, map) {
+  for (v in intersect(cols, names(d))) d[[v]] <- as.numeric(map[d[[v]]])
+  d
+}
+
+freq8_vars <- c("Q4_google","Q5_image","Q6_work","Q7_writing","Q8_math",
+                "Q9_friend","Q10_romantic","Q11_advice","Q12_forbidden")
+freq5_vars <- c("S1_tryfirst","S2_passive","S3_socratic","S4_learn","S5_check","S6_revise","S7_feedback")
+agree6_vars <- c("A1_lesssay","A2_notproducing","A3_goals","A4_challenges",
+                 "A5_meaningful","A6_careabout","A7_lesspride")
+infl5_vars <- c("Q15_infl_friends","Q16_infl_social","Q17_infl_google")
+anxiety_vars <- c("SA1_party","SA2_attention","SA3_strangers")
+
+df <- df |>
+  recode_col(freq8_vars, freq8) |>
+  recode_col(freq5_vars, freq5) |>
+  recode_col(agree6_vars, agree6) |>
+  recode_col(infl5_vars, infl5) |>
+  recode_col(anxiety_vars, anxiety) |>
+  recode_col(c("L1_lonely"), lonely_map) |>
+  recode_col(c("L2_nofriends","L3_leftout"), freq5) |>
+  recode_col(c("D1_disappeared"), dep1_map) |>
+  recode_col(c("D2_skill"), dep2_map) |>
+  recode_col(c("ID1_enjoy"), enjoy_map) |>
+  recode_col(c("ID2_identity"), import_map) |>
+  recode_col(c("ID3_pride"), enjoy_map) |>
+  recode_col(c("ID4_creativity"), creat_map) |>
+  recode_col(c("POL1_polarization"), pol_map) |>
+  recode_col(c("Q22_peer_ai"), peer_map)
+
+# Curiosity/laziness/confidence/interest — fuzzy recode
+for (v in intersect(c("Q18_curious","Q19_lazy","Q20_confident","Q21_interest"), names(df))) {
+  x <- tolower(as.character(df[[v]]))
+  df[[v]] <- case_when(
+    str_detect(x, "much less") ~ 1,
+    str_detect(x, "little less") ~ 2,
+    str_detect(x, "just as|neither") ~ 3,
+    str_detect(x, "little more") ~ 4,
+    str_detect(x, "much more") ~ 5
+  )
+}
+
+if ("Q1_ladder" %in% names(df)) df$Q1_ladder <- as.numeric(df$Q1_ladder)
+df$duration_min <- as.numeric(df$`Duration (in seconds)`) / 60
+
+# Construct groupings
+GROUPS <- list(
+  `Well-being` = "Q1_ladder",
+  `AI Freq: Productivity` = c("Q4_google","Q5_image","Q6_work","Q7_writing","Q8_math"),
+  `AI Freq: Social` = c("Q9_friend","Q10_romantic","Q11_advice","Q12_forbidden"),
+  `AI Influence: Behavior` = c("Q15_infl_friends","Q16_infl_social","Q17_infl_google"),
+  `AI Influence: Self` = c("Q18_curious","Q19_lazy","Q20_confident","Q21_interest"),
+  `Peer AI Use` = "Q22_peer_ai",
+  Strategies = c("S1_tryfirst","S2_passive","S3_socratic","S4_learn","S5_check","S6_revise","S7_feedback"),
+  `Process Agency` = c("A1_lesssay","A2_notproducing"),
+  `Outcome Agency` = c("A3_goals","A4_challenges"),
+  Meaning = c("A5_meaningful","A6_careabout","A7_lesspride"),
+  Dependency = c("D1_disappeared","D2_skill"),
+  Identity = c("ID1_enjoy","ID2_identity","ID3_pride","ID4_creativity"),
+  `Social Anxiety` = c("SA1_party","SA2_attention","SA3_strangers"),
+  Loneliness = c("L1_lonely","L2_nofriends","L3_leftout"),
+  Polarization = "POL1_polarization"
+)
+```
+
+## Sample
+
+```{r}
+#| label: sample
+n_total <- nrow(df)
+n_finished <- sum(df$Finished == "True" | df$Finished == TRUE, na.rm = TRUE)
+dur_med <- median(df$duration_min, na.rm = TRUE)
+dur_iqr <- quantile(df$duration_min, c(.25, .75), na.rm = TRUE)
+```
+
+| Metric | Value |
+|--------|-------|
+| Total responses | `r n_total` |
+| Finished | `r n_finished` |
+| Median duration | `r sprintf("%.1f min (IQR: %.1f–%.1f)", dur_med, dur_iqr[1], dur_iqr[2])` |
+
+```{r}
+#| label: demographics
+#| layout-ncol: 2
+#| fig-height: 3
+#| fig-width: 4
+
+if ("D_age" %in% names(df)) {
+  df |>
+    mutate(D_age = as.numeric(D_age)) |>
+    filter(!is.na(D_age)) |>
+    ggplot(aes(D_age)) +
+    geom_histogram(binwidth = 2, fill = "#4878CF", color = "white") +
+    labs(x = "Age", y = "Count", title = "Age Distribution") +
+    theme_minimal(base_size = 11)
+}
+
+if ("D_gender" %in% names(df)) {
+  df |>
+    filter(!is.na(D_gender)) |>
+    count(D_gender) |>
+    ggplot(aes(reorder(D_gender, -n), n)) +
+    geom_col(fill = "#4878CF") +
+    labs(x = NULL, y = "Count", title = "Gender") +
+    theme_minimal(base_size = 11)
+}
+```
+
+## Means & SDs
+
+```{r}
+#| label: descriptives
+stats <- map2_dfr(names(GROUPS), GROUPS, \(grp, vars) {
+  vars <- intersect(vars, names(df))
+  map_dfr(vars, \(v) {
+    s <- na.omit(as.numeric(df[[v]]))
+    tibble(Group = grp, Variable = v, N = length(s),
+           Mean = mean(s), SD = sd(s), Min = min(s), Max = max(s),
+           Skew = if (length(s) > 2) moments::skewness(s) else NA_real_)
+  })
+})
+
+stats |>
+  mutate(across(c(Mean, SD, Skew), \(x) round(x, 2))) |>
+  gt() |>
+  tab_options(table.font.size = 11) |>
+  cols_align(align = "left", columns = c(Group, Variable))
+```
+
+## Distributions
+
+```{r}
+#| label: distributions-setup
+
+# Group variables by response SCALE so labels are meaningful
+SCALE_GROUPS <- list(
+  `AI Use Frequency (0-7)` = list(
+    vars = c("Q4_google","Q5_image","Q6_work","Q7_writing","Q8_math",
+             "Q9_friend","Q10_romantic","Q11_advice","Q12_forbidden"),
+    labels = c("Never","Once","2-3x","1x/wk","Sev/wk","1x/day","Sev/day","Constantly"),
+    range = 0:7
+  ),
+  `Strategies (0-4)` = list(
+    vars = c("S1_tryfirst","S2_passive","S3_socratic","S4_learn","S5_check","S6_revise","S7_feedback"),
+    labels = c("Never","Rarely","Sometimes","Often","Always"),
+    range = 0:4
+  ),
+  `Agency & Meaning (1-6)` = list(
+    vars = c("A1_lesssay","A2_notproducing","A3_goals","A4_challenges",
+             "A5_meaningful","A6_careabout","A7_lesspride"),
+    labels = c("Str. disagree","Disagree","Sl. disagree","Sl. agree","Agree","Str. agree"),
+    range = 1:6
+  ),
+  `AI Influence on Behavior (1-5)` = list(
+    vars = c("Q15_infl_friends","Q16_infl_social","Q17_infl_google"),
+    labels = c("Much less","Little less","Same","Little more","Much more"),
+    range = 1:5
+  ),
+  `AI Influence on Self (1-5)` = list(
+    vars = c("Q18_curious","Q19_lazy","Q20_confident","Q21_interest"),
+    labels = c("Much less","Little less","Just as","Little more","Much more"),
+    range = 1:5
+  ),
+  `Social Anxiety (1-5)` = list(
+    vars = c("SA1_party","SA2_attention","SA3_strangers"),
+    labels = c("Very nervous","Somewhat","Neither","Somewhat relaxed","Very relaxed"),
+    range = 1:5
+  ),
+  `Loneliness: How lonely (1-5)` = list(
+    vars = "L1_lonely",
+    labels = c("Not at all","Slightly","Moderately","Very","Extremely"),
+    range = 1:5
+  ),
+  `Loneliness: Frequency (0-4)` = list(
+    vars = c("L2_nofriends","L3_leftout"),
+    labels = c("Never","Rarely","Sometimes","Often","Always"),
+    range = 0:4
+  ),
+  `Dependency (1-5)` = list(
+    vars = c("D1_disappeared","D2_skill"),
+    labels = c("Much worse","Somewhat worse","Same","Somewhat better","Much better"),
+    range = 1:5
+  ),
+  `Identity (1-5)` = list(
+    vars = c("ID1_enjoy","ID2_identity","ID3_pride","ID4_creativity"),
+    labels = c("1","2","3","4","5"),
+    range = 1:5
+  ),
+  `Polarization (1-5)` = list(
+    vars = "POL1_polarization",
+    labels = c("Much worse","Somewhat worse","No effect","Somewhat better","Much better"),
+    range = 1:5
+  )
+)
+
+# Short readable labels for y-axis
+VAR_LABELS <- c(
+  Q4_google = "Google/search", Q5_image = "Image gen", Q6_work = "School/work",
+  Q7_writing = "Writing", Q8_math = "Math/coding",
+  Q9_friend = "Friend substitute", Q10_romantic = "Romantic", Q11_advice = "Advice", Q12_forbidden = "Forbidden topics",
+  Q15_infl_friends = "See friends", Q16_infl_social = "Social media", Q17_infl_google = "Google things",
+  Q18_curious = "Curious", Q19_lazy = "Lazy", Q20_confident = "Confident", Q21_interest = "Interested in world",
+  Q22_peer_ai = "Peers use AI",
+  S1_tryfirst = "Try first myself", S2_passive = "Use without changes", S3_socratic = "Ask follow-ups",
+  S4_learn = "Use to learn", S5_check = "Check correctness", S6_revise = "Revise AI output", S7_feedback = "Ask for feedback",
+  A1_lesssay = "Less say in work", A2_notproducing = "Not really producing",
+  A3_goals = "Achieve my goals", A4_challenges = "Take on bigger challenges",
+  A5_meaningful = "Work less meaningful", A6_careabout = "Care less about work", A7_lesspride = "Less pride in work",
+  D1_disappeared = "If AI disappeared", D2_skill = "Skills changed",
+  ID1_enjoy = "Enjoy work", ID2_identity = "Work = identity", ID3_pride = "Pride in work", ID4_creativity = "My creativity in output",
+  SA1_party = "Party w/ strangers", SA2_attention = "Center of attention", SA3_strangers = "Talk to strangers",
+  L1_lonely = "How lonely", L2_nofriends = "No friends", L3_leftout = "Left out",
+  POL1_polarization = "AI effect on polarization"
+)
+
+make_dist_plot <- function(scale_name, spec) {
+  vars <- intersect(spec$vars, names(df))
+  if (length(vars) == 0) return(NULL)
+
+  # Compute mean per variable to sort by
+  var_means <- map_dfr(vars, \(v) {
+    tibble(variable = v, mn = mean(as.numeric(df[[v]]), na.rm = TRUE))
+  }) |> arrange(mn)  # lowest mean at bottom → highest at top
+
+  d <- map_dfr(vars, \(v) {
+    tibble(variable = v, value = as.numeric(df[[v]])) |> filter(!is.na(value))
+  }) |>
+    mutate(value = factor(value, levels = spec$range)) |>
+    count(variable, value, .drop = FALSE) |>
+    group_by(variable) |>
+    mutate(pct = n / sum(n)) |>
+    ungroup() |>
+    mutate(
+      var_label = ifelse(variable %in% names(VAR_LABELS), VAR_LABELS[variable], variable)
+    )
+
+  # Order labels by mean (highest at top)
+  sorted_labels <- var_means |>
+    mutate(lab = ifelse(variable %in% names(VAR_LABELS), VAR_LABELS[variable], variable)) |>
+    pull(lab)
+  d <- d |> mutate(var_label = factor(var_label, levels = sorted_labels))
+
+  n_levels <- length(spec$range)
+  pal <- if (n_levels <= 5) {
+    RColorBrewer::brewer.pal(max(3, n_levels), "RdYlBu")
+  } else if (n_levels <= 7) {
+    RColorBrewer::brewer.pal(n_levels, "RdYlBu")
+  } else {
+    colorRampPalette(RColorBrewer::brewer.pal(9, "RdYlBu"))(n_levels)
+  }
+  if (n_levels < length(pal)) pal <- pal[seq_len(n_levels)]
+
+  ggplot(d, aes(y = var_label, x = pct, fill = value)) +
+    geom_col(position = "stack", width = 0.7) +
+    scale_x_continuous(labels = percent_format(), expand = c(0, 0)) +
+    scale_fill_manual(values = pal, labels = spec$labels, name = NULL, drop = FALSE) +
+    labs(title = scale_name, x = NULL, y = NULL) +
+    theme_minimal(base_size = 10) +
+    theme(
+      panel.grid.major.y = element_blank(),
+      legend.position = "bottom",
+      legend.key.size = unit(0.3, "cm"),
+      legend.text = element_text(size = 7),
+      plot.title = element_text(face = "bold", size = 11)
+    ) +
+    guides(fill = guide_legend(nrow = 1))
+}
+```
+
+```{r}
+#| label: distributions-plots
+#| fig-width: 10
+#| fig-height: 4
+#| results: asis
+
+for (nm in names(SCALE_GROUPS)) {
+  p <- make_dist_plot(nm, SCALE_GROUPS[[nm]])
+  if (!is.null(p)) {
+    n_vars <- length(intersect(SCALE_GROUPS[[nm]]$vars, names(df)))
+    h <- max(2.5, 1 + n_vars * 0.45)
+    print(p + theme(plot.margin = margin(5, 10, 10, 5)))
+    cat("\n\n")
+  }
+}
+```
+
+## Scale Composites
+
+```{r}
+#| label: composites
+
+# Helper: row-mean of available columns
+rmean <- function(d, cols) {
+  cols <- intersect(cols, names(d))
+  if (length(cols) == 0) return(rep(NA_real_, nrow(d)))
+  rowMeans(d[cols] |> mutate(across(everything(), as.numeric)), na.rm = TRUE)
+}
+
+# Loneliness items are on different scales (L1: 1-5, L2/L3: 0-4) — standardize before averaging
+rstdmean <- function(d, cols) {
+  cols <- intersect(cols, names(d))
+  if (length(cols) == 0) return(rep(NA_real_, nrow(d)))
+  scaled <- d[cols] |> mutate(across(everything(), \(x) as.numeric(scale(as.numeric(x)))))
+  rowMeans(scaled, na.rm = TRUE)
+}
+
+df <- df |> mutate(
+  # AI use composites
+  ai_freq_productivity = rmean(pick(everything()), c("Q4_google","Q5_image","Q6_work","Q7_writing","Q8_math")),
+  ai_freq_social       = rmean(pick(everything()), c("Q9_friend","Q10_romantic","Q11_advice","Q12_forbidden")),
+
+  # Coach vs Crutch
+  # Coach = try first, ask follow-ups, use to learn, check correctness, revise, ask feedback
+  coach  = rmean(pick(everything()), c("S1_tryfirst","S3_socratic","S4_learn","S5_check","S6_revise","S7_feedback")),
+  # Crutch = use without changes (single item, but conceptually the opposite pole)
+  crutch = as.numeric(S2_passive),
+
+  # Agency, meaning, dependency
+  # A1, A2 are negatively worded (high = LESS agency) → reverse so high = MORE process agency
+  process_agency  = 7 - rmean(pick(everything()), c("A1_lesssay","A2_notproducing")),
+  outcome_agency  = rmean(pick(everything()), c("A3_goals","A4_challenges")),
+  # A5, A6, A7 are negatively worded (high = LESS meaning) → reverse so high = MORE meaning
+  meaning         = 7 - rmean(pick(everything()), c("A5_meaningful","A6_careabout","A7_lesspride")),
+  # D1, D2: high = would do BETTER without AI / skills improved → reverse so high = MORE dependent
+  dependency      = 6 - rmean(pick(everything()), c("D1_disappeared","D2_skill")),
+
+  # Other composites
+  ai_infl_behavior = rmean(pick(everything()), c("Q15_infl_friends","Q16_infl_social","Q17_infl_google")),
+  ai_infl_self     = rmean(pick(everything()), c("Q18_curious","Q19_lazy","Q20_confident","Q21_interest")),
+  identity         = rmean(pick(everything()), c("ID1_enjoy","ID2_identity","ID3_pride","ID4_creativity")),
+  social_anxiety   = rmean(pick(everything()), c("SA1_party","SA2_attention","SA3_strangers")),
+  loneliness       = rstdmean(pick(everything()), c("L1_lonely","L2_nofriends","L3_leftout"))
+)
+```
+
+```{r}
+#| label: exec-summary-compute
+#| output: false
+
+exec$n <- nrow(df)
+exec$dur <- sprintf("%.1f", median(df$duration_min, na.rm = TRUE))
+exec$age_med <- sprintf("%.0f", median(as.numeric(df$D_age), na.rm = TRUE))
+exec$cc_r <- round(cor(df$coach, df$crutch, use = "complete"), 2)
+exec$coach_m <- sprintf("%.1f", mean(df$coach, na.rm = TRUE))
+exec$crutch_m <- sprintf("%.1f", mean(df$crutch, na.rm = TRUE))
+exec$coach_oa <- round(cor(df$coach, df$outcome_agency, use = "complete"), 2)
+exec$coach_pa <- round(cor(df$coach, df$process_agency, use = "complete"), 2)
+exec$coach_meaning <- round(cor(df$coach, df$meaning, use = "complete"), 2)
+exec$crutch_oa <- round(cor(df$crutch, df$outcome_agency, use = "complete"), 2)
+exec$crutch_dep <- round(cor(df$crutch, df$dependency, use = "complete"), 2)
+exec$pa_meaning <- round(cor(df$process_agency, df$meaning, use = "complete"), 2)
+exec$pa_oa <- round(cor(df$process_agency, df$outcome_agency, use = "complete"), 2)
+exec$dep_sd <- sprintf("%.2f", sd(df$dependency, na.rm = TRUE))
+exec$dep_m <- sprintf("%.1f", mean(df$dependency, na.rm = TRUE))
+m_mod <- lm(meaning ~ scale(process_agency) * scale(identity), data = df)
+exec$mod_p <- sprintf("%.3f", summary(m_mod)$coefficients[4, 4])
+saveRDS(exec, "exec_summary_stats.rds")
+```
+
+```{r}
+#| label: composite-alphas
+#| results: asis
+
+# Cronbach's alpha for each composite
+alpha_sets <- list(
+  `AI Freq: Productivity` = c("Q4_google","Q5_image","Q6_work","Q7_writing","Q8_math"),
+  `AI Freq: Social`       = c("Q9_friend","Q10_romantic","Q11_advice","Q12_forbidden"),
+  Coach                   = c("S1_tryfirst","S3_socratic","S4_learn","S5_check","S6_revise","S7_feedback"),
+  `Process Agency`        = c("A1_lesssay","A2_notproducing"),
+  `Outcome Agency`        = c("A3_goals","A4_challenges"),
+  Meaning                 = c("A5_meaningful","A6_careabout","A7_lesspride"),
+  Dependency              = c("D1_disappeared","D2_skill"),
+  Identity                = c("ID1_enjoy","ID2_identity","ID3_pride","ID4_creativity"),
+  `Social Anxiety`        = c("SA1_party","SA2_attention","SA3_strangers"),
+  Loneliness              = c("L1_lonely","L2_nofriends","L3_leftout")
+)
+
+alpha_rows <- map_dfr(names(alpha_sets), \(nm) {
+  cols <- intersect(alpha_sets[[nm]], names(df))
+  if (length(cols) < 2) return(tibble(Scale = nm, Items = length(cols), Alpha = NA_real_))
+  mat <- df[cols] |> mutate(across(everything(), as.numeric)) |> na.omit()
+  k <- ncol(mat)
+  v <- var(rowSums(mat))
+  item_v <- sum(sapply(mat, var))
+  a <- (k / (k - 1)) * (1 - item_v / v)
+  tibble(Scale = nm, Items = length(cols), Alpha = round(a, 2))
+})
+
+alpha_rows |> gt() |> tab_options(table.font.size = 11)
+```
+
+## Scale-Level Correlations
+
+```{r}
+#| label: scale-correlations
+
+SCALE_VARS <- c(
+  "Well-being"          = "Q1_ladder",
+  "AI Freq: Prod."      = "ai_freq_productivity",
+  "AI Freq: Social"     = "ai_freq_social",
+  "Coach"               = "coach",
+  "Crutch"              = "crutch",
+  "Process Agency (hi=more)"  = "process_agency",
+  "Outcome Agency"            = "outcome_agency",
+  "Meaning (hi=more)"         = "meaning",
+  "Dependency (hi=more dep.)" = "dependency",
+  "AI Infl: Behavior"   = "ai_infl_behavior",
+  "AI Infl: Self"       = "ai_infl_self",
+  "Peer AI Use"         = "Q22_peer_ai",
+  "Identity"            = "identity",
+  "Social Anxiety"      = "social_anxiety",
+  "Loneliness"          = "loneliness",
+  "Polarization"        = "POL1_polarization"
+)
+
+scale_df <- df |>
+  select(any_of(unname(SCALE_VARS))) |>
+  mutate(across(everything(), as.numeric))
+
+M_scale <- cor(scale_df, use = "pairwise.complete.obs")
+labs <- names(SCALE_VARS)[match(colnames(M_scale), SCALE_VARS)]
+rownames(M_scale) <- labs
+colnames(M_scale) <- labs
+
+library(plotly)
+plot_ly(
+  x = labs, y = labs,
+  z = round(M_scale, 2), type = "heatmap",
+  colorscale = list(c(0, "#2166AC"), c(0.5, "white"), c(1, "#B2182B")),
+  zmin = -1, zmax = 1,
+  hovertemplate = "%{y} × %{x}<br>r = %{z}<extra></extra>"
+) |>
+  layout(
+    title = "Scale-Level Correlations (hover for details)",
+    xaxis = list(tickfont = list(size = 9), tickangle = 45),
+    yaxis = list(tickfont = list(size = 9), autorange = "reversed"),
+    height = 600, width = 700
+  )
+```
+
+## Item-Level Correlation Matrix
+
+```{r}
+#| label: correlations
+
+corr_vars <- unlist(GROUPS) |> intersect(names(df))
+corr_labels <- ifelse(corr_vars %in% names(VAR_LABELS), VAR_LABELS[corr_vars], corr_vars)
+corr_df <- df |> select(all_of(corr_vars)) |> mutate(across(everything(), as.numeric))
+M <- cor(corr_df, use = "pairwise.complete.obs")
+rownames(M) <- corr_labels
+colnames(M) <- corr_labels
+
+# Interactive heatmap with plotly
+library(plotly)
+plot_ly(
+  x = corr_labels, y = corr_labels,
+  z = round(M, 2), type = "heatmap",
+  colorscale = list(c(0, "#2166AC"), c(0.5, "white"), c(1, "#B2182B")),
+  zmin = -1, zmax = 1,
+  hovertemplate = "%{y} × %{x}<br>r = %{z}<extra></extra>"
+) |>
+  layout(
+    title = "Pairwise Correlations (hover for details)",
+    xaxis = list(tickfont = list(size = 8), tickangle = 45),
+    yaxis = list(tickfont = list(size = 8), autorange = "reversed"),
+    height = 700, width = 800
+  )
+```
+
+## Focused Analysis: Coach/Crutch and Agency
+
+### Are coach and crutch use distinct?
+
+We constructed a **coach composite** (mean of: try first, ask follow-ups, use to learn, check correctness, revise output, ask for feedback; 0--4 scale) and treated **passive use** ("I use what AI gives me without making changes") as a single-item crutch indicator.
+
+```{r}
+#| label: focus-descriptives
+#| results: asis
+
+cat("| Composite | M | SD | Range |\n")
+cat("|-----------|---|----| ------|\n")
+for (v in c("coach","crutch","process_agency","outcome_agency","meaning","dependency")) {
+  s <- na.omit(as.numeric(df[[v]]))
+  cat(sprintf("| %s | %.2f | %.2f | %.1f--%.1f |\n", v, mean(s), sd(s), min(s), max(s)))
+}
+```
+
+```{r}
+#| label: focus-cc-r
+#| output: false
+cc_r <- round(cor(df$coach, df$crutch, use = "complete"), 2)
+```
+
+Coach use was moderate on average (M = `r round(mean(df$coach, na.rm=T), 2)`, on a 0--4 scale), while crutch use was low (M = `r round(mean(df$crutch, na.rm=T), 2)`). The two composites were **completely uncorrelated** (r = `r cc_r`), confirming they capture independent dimensions of AI use rather than opposite poles of a single continuum. Someone who uses AI as a coach is no more or less likely to also use it passively.
+
+### How do coach and crutch use relate to outcomes?
+
+The heatmap below shows bivariate correlations between coach/crutch use and the key outcome composites.
+
+```{r}
+#| label: focus-coach-crutch-corr
+#| fig-width: 8
+#| fig-height: 5
+
+focus_vars <- c("coach","crutch","process_agency","outcome_agency","meaning","dependency",
+                "identity","Q1_ladder","ai_freq_productivity","ai_freq_social")
+focus_labels <- c("Coach","Crutch","Process Agency","Outcome Agency","Meaning","Dependency",
+                  "Identity","Well-being","AI Freq: Prod.","AI Freq: Social")
+
+focus_df <- df |> select(any_of(focus_vars)) |> mutate(across(everything(), as.numeric))
+M_focus <- cor(focus_df, use = "pairwise.complete.obs")
+rownames(M_focus) <- focus_labels[match(colnames(M_focus), focus_vars)]
+colnames(M_focus) <- rownames(M_focus)
+
+plot_ly(
+  x = colnames(M_focus), y = rownames(M_focus),
+  z = round(M_focus, 2), type = "heatmap",
+  colorscale = list(c(0, "#2166AC"), c(0.5, "white"), c(1, "#B2182B")),
+  zmin = -1, zmax = 1,
+  hovertemplate = "%{y} × %{x}<br>r = %{z}<extra></extra>"
+) |>
+  layout(
+    title = "Coach/Crutch × Outcomes (hover for r)",
+    xaxis = list(tickfont = list(size = 10), tickangle = 45),
+    yaxis = list(tickfont = list(size = 10), autorange = "reversed"),
+    height = 500, width = 600
+  )
+```
+
+```{r}
+#| label: focus-key-rs
+#| output: false
+r_coach_oa <- round(cor(df$coach, df$outcome_agency, use="complete"), 2)
+r_coach_pa <- round(cor(df$coach, df$process_agency, use="complete"), 2)
+r_coach_m <- round(cor(df$coach, df$meaning, use="complete"), 2)
+r_crutch_oa <- round(cor(df$crutch, df$outcome_agency, use="complete"), 2)
+r_crutch_dep <- round(cor(df$crutch, df$dependency, use="complete"), 2)
+r_crutch_m <- round(cor(df$crutch, df$meaning, use="complete"), 2)
+r_pa_oa <- round(cor(df$process_agency, df$outcome_agency, use="complete"), 2)
+r_pa_m <- round(cor(df$process_agency, df$meaning, use="complete"), 2)
+r_oa_m <- round(cor(df$outcome_agency, df$meaning, use="complete"), 2)
+```
+
+**A note on composite direction.** After reverse-coding, all composites now point in an intuitive direction: higher process agency = more felt control over how work gets done; higher meaning = work feels more meaningful; higher dependency = more dependent on AI (would be worse off without it). Outcome agency was already coded intuitively (higher = AI helps me achieve more).
+
+Coach and crutch use show strikingly different correlational profiles:
+
+- **Coach use** is associated with higher outcome agency (r = `r r_coach_oa`), higher meaning (r = `r r_coach_m`), and higher process agency (r = `r r_coach_pa`). People who engage deliberately with AI feel it helps them achieve more, and they also retain a greater sense of control over how their work gets done and find their work more meaningful.
+```{r}
+#| label: focus-key-rs-2
+#| output: false
+r_crutch_pa <- round(cor(df$crutch, df$process_agency, use="complete"), 2)
+```
+
+- **Crutch use** also predicts higher outcome agency (r = `r r_crutch_oa`) but is unrelated to both meaning (r = `r r_crutch_m`) and process agency (r = `r r_crutch_pa`). Passive users do report greater dependency on AI (r = `r r_crutch_dep`), feeling they'd be worse off if it disappeared. The fact that crutch use boosts outcome agency without affecting process agency or meaning suggests that passive AI use is experientially neutral -- it gets things done without either enhancing or eroding the sense of ownership over one's work.
+
+### The agency tradeoff
+
+Process agency and outcome agency are **positively correlated** (r = `r r_pa_oa`). At the bivariate level, people who feel AI helps them achieve more also tend to feel more control over how their work gets done. This likely reflects a general positive-vs-negative orientation toward AI: some people feel good about AI on both dimensions, others feel bad on both. The tradeoff predicted by the Agency Framework paper -- that AI boosts outcomes while eroding process control -- may require experimental manipulation rather than cross-sectional correlations to detect, since individual differences in AI attitudes swamp the within-person tension.
+
+Process agency and meaning are **strongly correlated** (r = `r r_pa_m`): people who feel more control over their work process also find their work more meaningful. By contrast, outcome agency is only weakly related to meaning (r = `r r_oa_m`). This suggests that meaning is tied to the process of doing work -- feeling ownership over *how* things get done -- rather than to the outcomes achieved. This is consistent with the idea that meaning erodes through the process channel, not the outcome channel.
+
+### Regression: what predicts each outcome?
+
+To test whether coach and crutch use independently predict outcomes beyond sheer AI use frequency, we regressed each outcome on the coach composite, the crutch item, and productivity AI frequency.
+
+```{r}
+#| label: focus-regressions
+#| results: asis
+
+run_reg <- function(dv_name, formula, data) {
+  m <- lm(formula, data = data)
+  s <- summary(m)
+  coefs <- as.data.frame(s$coefficients)
+  coefs$term <- rownames(coefs)
+  cat(sprintf("\n#### %s (R² = %.2f)\n\n", dv_name, s$r.squared))
+  cat("| Predictor | b | SE | t | p |\n")
+  cat("|-----------|---|----|----|---|\n")
+  for (i in seq_len(nrow(coefs))) {
+    stars <- ifelse(coefs[i,4] < .001, "***",
+             ifelse(coefs[i,4] < .01, "**",
+             ifelse(coefs[i,4] < .05, "*",
+             ifelse(coefs[i,4] < .10, ".", ""))))
+    cat(sprintf("| %s | %.2f | %.2f | %.2f | %.3f%s |\n",
+                coefs$term[i], coefs[i,1], coefs[i,2], coefs[i,3], coefs[i,4], stars))
+  }
+  cat("\n")
+}
+
+run_reg("Outcome Agency", outcome_agency ~ coach + crutch + ai_freq_productivity, df)
+run_reg("Process Agency (high = more control)", process_agency ~ coach + crutch + ai_freq_productivity, df)
+run_reg("Meaning (high = more meaningful)", meaning ~ coach + crutch + ai_freq_productivity, df)
+run_reg("Dependency (high = more dependent)", dependency ~ coach + crutch + ai_freq_productivity, df)
+```
+
+**Outcome agency** is the best-predicted outcome (R² = .39). All three predictors contribute independently: coach use, crutch use, and AI frequency all have positive coefficients. In other words, any kind of AI engagement -- smart or passive -- makes people feel more capable. This is consistent with the idea that outcome agency reflects what AI does *for* you regardless of how you use it.
+
+**Meaning** (reverse-coded so high = work feels more meaningful): Only coach use predicts it, and positively. Neither crutch use nor AI frequency matter. People who engage thoughtfully with AI -- checking, revising, learning -- find their work more meaningful. Passive users are not harmed, but they are not protected either.
+
+**Process agency** (reverse-coded so high = more felt control): Coach use has a positive effect -- coach users feel they retain more control over how their work gets done. This makes sense: deliberately engaging with AI (checking, revising, asking follow-ups) maintains a sense of ownership over the process. Crutch use and AI frequency are not significant.
+
+**Dependency** (reverse-coded so high = more dependent on AI): Coach use predicts *less* dependency -- coach users feel their skills have improved and they'd cope fine without AI. Crutch use trends toward more dependency. However, the dependency items have very low variance overall, with most responses clustering at "about the same." These items may need reworking for the main wave.
+
+### Item-level detail: which strategies matter most?
+
+The heatmap below crosses each individual strategy item with each agency/meaning/dependency item, revealing which specific behaviors drive the composite-level patterns.
+
+```{r}
+#| label: focus-strategy-item-corr
+#| fig-width: 9
+#| fig-height: 5
+
+strat_items <- c("S1_tryfirst","S2_passive","S3_socratic","S4_learn","S5_check","S6_revise","S7_feedback")
+outcome_items <- c("A1_lesssay","A2_notproducing","A3_goals","A4_challenges",
+                   "A5_meaningful","A6_careabout","A7_lesspride","D1_disappeared","D2_skill")
+
+strat_labels <- c("Try first","Passive use","Follow-ups","Learn","Check","Revise","Feedback")
+out_labels <- c("Less say","Not producing","Goals","Challenges",
+                "Less meaningful","Care about","Less pride","If AI gone","Skill change")
+
+M_strat <- cor(
+  df[strat_items] |> mutate(across(everything(), as.numeric)),
+  df[outcome_items] |> mutate(across(everything(), as.numeric)),
+  use = "pairwise.complete.obs"
+)
+
+plot_ly(
+  x = out_labels, y = strat_labels,
+  z = round(M_strat, 2), type = "heatmap",
+  colorscale = list(c(0, "#2166AC"), c(0.5, "white"), c(1, "#B2182B")),
+  zmin = -0.6, zmax = 0.6,
+  hovertemplate = "%{y} × %{x}<br>r = %{z}<extra></extra>"
+) |>
+  layout(
+    title = "Strategy Items × Agency/Meaning/Dependency Items",
+    xaxis = list(tickfont = list(size = 10), tickangle = 45),
+    yaxis = list(tickfont = list(size = 10), autorange = "reversed"),
+    height = 400, width = 650
+  )
+```
+
+Note: the heatmap below uses the **raw item scores** (not the reverse-coded composites). For the negatively worded items (less say, not producing, less meaningful, care about, less pride), a positive correlation with a strategy means that strategy is associated with *more* agreement with the negative statement. For "if AI gone" and "skill change," higher scores mean *less* dependent (would do better / skills improved).
+
+Several patterns stand out:
+
+- **"I use AI to learn" (S4)** is the strongest single predictor of outcome agency, correlating r = .57 with goal achievement and r = .59 with taking on bigger challenges. It also predicts disagreement with "work feels less meaningful" (r = -.24). This item is doing the most work in the coach composite.
+- **"I ask AI for feedback" (S7)** shows a similar profile, correlating r = .41 with goals and r = .50 with challenges. People who treat AI as a coach or teacher feel more capable.
+- **"I check whether AI is correct" (S5)** has a unique pattern: it is the strongest protector of meaning, correlating negatively with "less meaningful" (r = -.44), "AI does parts I care about" (r = -.40), and "less pride" (r = -.34). But it does not predict outcome agency. Checking correctness protects meaning without boosting perceived capability.
+- **"I try first" (S1)** shows a surprising reversal: it correlates *positively* with "not producing" (r = .29) and *negatively* with "if AI gone" (r = .37, meaning they'd do better without AI -- i.e., they feel more dependent). People who try first before turning to AI may be doing so *because* they already feel dependent -- this item may capture anxiety about AI reliance rather than genuine autonomy.
+- **Passive use (S2)** mirrors coach items for outcome agency (r = .32-.36 with goals/challenges) but is flat on meaning items. Accepting AI output without changes makes you feel more capable without affecting how meaningful work feels -- consistent with a "good enough" approach that is neither harmful nor enriching.
+
+### Does identity moderate the agency → meaning link?
+
+If meaning is tied to process agency, does it matter more for people who strongly identify with their work? We tested whether the identity composite (enjoy work, work = identity, pride in work, creativity) moderates the relationship between each agency dimension and meaning.
+
+```{r}
+#| label: moderation-tests
+#| results: asis
+
+df_mod <- df |> mutate(
+  pa_z = as.numeric(scale(process_agency)),
+  oa_z = as.numeric(scale(outcome_agency)),
+  id_z = as.numeric(scale(identity))
+)
+
+m1 <- lm(meaning ~ pa_z * id_z, data = df_mod)
+s1 <- summary(m1)
+m2 <- lm(meaning ~ oa_z * id_z, data = df_mod)
+s2 <- summary(m2)
+
+format_coef <- function(s, row) {
+  c <- s$coefficients[row, ]
+  sprintf("b = %.2f, t(%d) = %.2f, p = %.3f", c[1], s$df[2], c[3], c[4])
+}
+
+cat(sprintf("**Process agency × identity → meaning**: The interaction is significant (%s). ",
+            format_coef(s1, 4)))
+cat(sprintf("The main effect of process agency on meaning is strong (%s), ",
+            format_coef(s1, 2)))
+cat(sprintf("and identity moderates this link (R² = %.2f).\n\n", s1$r.squared))
+
+cat(sprintf("**Outcome agency × identity → meaning**: The interaction is not significant (%s). ",
+            format_coef(s2, 4)))
+cat(sprintf("Neither outcome agency nor identity predict meaning in this model (R² = %.2f).\n\n", s2$r.squared))
+```
+
+The plot below shows the process agency → meaning relationship at high (+1 SD) and low (-1 SD) identity, with individual data points.
+
+```{r}
+#| label: moderation-plot-process
+#| fig-width: 9
+#| fig-height: 4.5
+#| layout-ncol: 2
+
+library(patchwork)
+
+# Simple slopes data
+id_lo <- mean(df$identity, na.rm=T) - sd(df$identity, na.rm=T)
+id_hi <- mean(df$identity, na.rm=T) + sd(df$identity, na.rm=T)
+
+m1_raw <- lm(meaning ~ process_agency * identity, data = df)
+
+# Predicted lines
+pa_range <- range(df$process_agency, na.rm = TRUE)
+pred_grid <- expand.grid(
+  process_agency = seq(pa_range[1], pa_range[2], length.out = 50),
+  identity = c(id_lo, id_hi)
+) |>
+  mutate(
+    meaning = predict(m1_raw, newdata = pick(everything())),
+    Identity = ifelse(identity == id_lo, "Low (-1 SD)", "High (+1 SD)")
+  )
+
+p1 <- ggplot() +
+  geom_point(data = df, aes(x = process_agency, y = meaning),
+             alpha = 0.3, size = 1.5, color = "grey40") +
+  geom_line(data = pred_grid, aes(x = process_agency, y = meaning, color = Identity),
+            linewidth = 1.2) +
+  scale_color_manual(values = c("Low (-1 SD)" = "#2166AC", "High (+1 SD)" = "#B2182B")) +
+  labs(title = "Process Agency × Identity → Meaning",
+       x = "Process Agency (high = more control)",
+       y = "Meaning (high = more meaningful)") +
+  theme_minimal(base_size = 11) +
+  theme(legend.position = "bottom")
+
+# Same for outcome agency
+m2_raw <- lm(meaning ~ outcome_agency * identity, data = df)
+oa_range <- range(df$outcome_agency, na.rm = TRUE)
+pred_grid2 <- expand.grid(
+  outcome_agency = seq(oa_range[1], oa_range[2], length.out = 50),
+  identity = c(id_lo, id_hi)
+) |>
+  mutate(
+    meaning = predict(m2_raw, newdata = pick(everything())),
+    Identity = ifelse(identity == id_lo, "Low (-1 SD)", "High (+1 SD)")
+  )
+
+p2 <- ggplot() +
+  geom_point(data = df, aes(x = outcome_agency, y = meaning),
+             alpha = 0.3, size = 1.5, color = "grey40") +
+  geom_line(data = pred_grid2, aes(x = outcome_agency, y = meaning, color = Identity),
+            linewidth = 1.2) +
+  scale_color_manual(values = c("Low (-1 SD)" = "#2166AC", "High (+1 SD)" = "#B2182B")) +
+  labs(title = "Outcome Agency × Identity → Meaning",
+       x = "Outcome Agency (high = AI helps achieve more)",
+       y = "Meaning (high = more meaningful)") +
+  theme_minimal(base_size = 11) +
+  theme(legend.position = "bottom")
+
+p1
+p2
+```
+
+The interaction pattern is clear: among people with **low work identity**, process agency is strongly linked to meaning -- losing control over the process devastates meaning for people who don't have a strong baseline attachment to their work. Among people with **high work identity**, the relationship is weaker -- they maintain meaning regardless of how much process control AI takes away, presumably because their sense of meaning is rooted in something deeper than moment-to-moment process ownership.
+
+For outcome agency, identity does not moderate anything -- the flat lines confirm that feeling more capable through AI simply does not move the needle on meaning, regardless of how much someone identifies with their work.
+
+## Feedback Synthesis
+
+The 217 feedback comments cluster around these **actionable issues**:
+
+### Must fix
+
+1. **Ladder scale order is backwards.** 0 appears at top, 10 at bottom, despite text saying "zero at the bottom, ten at the top." ~10 people flagged this; some may have answered incorrectly. **Flip the response order.**
+
+2. **Agency/meaning items assume AI use for work.** Multiple people asked "What if I don't use AI for work?" The items become unanswerable for non-work-AI users. **Add a "does not apply" option or gate these items on work-related AI use (Q6_work > 0).**
+
+3. **No midpoint on the 6-point agree/disagree scale.** Multiple requests for "neither agree nor disagree." This is a deliberate design choice (forced choice), but people noticed and were uncomfortable. **Consider whether the forced choice is worth the respondent friction.**
+
+### Should fix
+
+4. **"Lazy" wording (Q19) triggers defensiveness.** People interpreted it as a character judgment rather than a behavioral description. One respondent wrote a paragraph about not being lazy. Consider rewording to something more neutral like "less motivated" or "less hardworking."
+
+5. **Social anxiety scale direction.** Response options go from "Very nervous" to "Very relaxed" — at least one person noted it would be more intuitive left-to-right from relaxed to nervous (positive first).
+
+6. **Policy question needs "no policy" and "don't know" options.** Multiple people noted their employer neither bans nor encourages AI but has guidelines, or they simply don't know.
+
+7. **Chatbot examples outdated.** "Snapchat My AI" was flagged as an odd example. Consider updating to more current/universal examples.
+
+### Minor / cosmetic
+
+8. **"CLOSE" capitalization** in the friends question was noted as unnecessary/jarring by a few.
+9. **Dependency screening:** Same issue as agency — people who don't use AI for work can't answer "if AI disappeared."
+10. **"The next questions" phrasing** was called "awkward" — consider "The following questions."
+
+### No issues flagged
+
+Strategies, Loneliness, Polarization, Writing invitation, and AI adoption pages received essentially no substantive feedback — just "clear" / "no issues."
+
+---
+
+## Feedback Comments
+
+```{r}
+#| label: feedback
+#| results: asis
+
+# Map feedback columns to the page/block they follow
+fb_cols <- names(raw)[str_detect(names(raw), "span_style")]
+
+# Build page labels from column position — feedback cols sit after each block
+PAGE_LABELS <- c(
+  "Well-being (ladder)", "Close friends", "AI use Y/N",
+  "AI use frequency", "AI influence on behavior", "AI adoption (W4)",
+  "AI influence: behavior change", "AI influence: self-perception",
+  "Peer AI use", "Strategies", "Agency & meaning (process/outcome)",
+  "Meaning", "Dependency", "Identity", "Social anxiety",
+  "Loneliness", "Polarization", "Policy & change",
+  "Life events", "Writing invitation", "Demographics", "Final"
+)
+
+fb_labels <- setNames(
+  PAGE_LABELS[seq_along(fb_cols)],
+  fb_cols
+)
+# Truncate if more cols than labels
+fb_labels[is.na(fb_labels)] <- "Unknown page"
+
+all_text <- raw |>
+  select(any_of(fb_cols)) |>
+  pivot_longer(everything(), names_to = "col", values_to = "comment") |>
+  filter(!is.na(comment), str_trim(comment) != "",
+         !str_to_lower(comment) %in% c("no","none","nope","nothing","n/a","na","nan","nah")) |>
+  mutate(page = fb_labels[col])
+
+if (nrow(all_text) > 0) {
+  cat(sprintf("**%d feedback comments:**\n\n", nrow(all_text)))
+  for (pg in unique(all_text$page)) {
+    cat(sprintf("### %s\n\n", pg))
+    subset <- all_text |> filter(page == pg)
+    for (i in seq_len(nrow(subset))) {
+      cat(sprintf("- %s\n", subset$comment[i]))
+    }
+    cat("\n")
+  }
+} else {
+  cat("No feedback comments.\n")
+}
+```
+
+## Appendix: Full Item Text
+
+| Variable | Item Text | Scale |
+|----------|-----------|-------|
+| Q1_ladder | Please imagine a ladder with steps numbered from zero at the bottom to ten at the top. The top represents the best possible life for you and the bottom represents the worst possible life. On which step would you say you personally feel you stood during the past 30 days? | 0–10 |
+| Q2_friends | Please think of a CLOSE friend as someone you can talk with about things that are most important to you, including sensitive issues. Overall, about how many close friends would you say you have? | Count |
+| AI_USE_YN | In the past 30 days, have you used AI chatbots? | Y/N |
+| Q4_google | During the past 30 days, about how often did you ask an AI chatbot something instead of just Googling it? | Never → Constantly (0–7) |
+| Q5_image | During the past 30 days, about how often did you use AI chatbots to create an image or video? | Never → Constantly (0–7) |
+| Q6_work | During the past 30 days, about how often did you use AI chatbots to help you with your work? | Never → Constantly (0–7) |
+| Q7_writing | During the past 30 days, about how often did you use AI chatbots to help you with writing? | Never → Constantly (0–7) |
+| Q8_math | During the past 30 days, about how often did you use AI chatbots to help you with math? | Never → Constantly (0–7) |
+| Q9_friend | During the past 30 days, about how often did you use AI chatbots as if they were a friend? For example, to talk about your day or just have a personal conversation. | Never → Constantly (0–7) |
+| Q10_romantic | During the past 30 days, about how often did you use AI chatbots as if they were a boyfriend/girlfriend? | Never → Constantly (0–7) |
+| Q11_advice | During the past 30 days, about how often did you use AI chatbots to get advice about something personal to you, such as advice about relationships or life decisions? | Never → Constantly (0–7) |
+| Q12_forbidden | During the past 30 days, about how often did you use AI chatbots for your work when you were specifically told not to? | Never → Constantly (0–7) |
+| W4_adopt | When did you first start using AI chatbots? | Categorical |
+| W4_paid | Do you pay for an AI chatbot subscription (e.g., ChatGPT Plus)? | Y/N |
+| Q15_infl_friends | Because of AI chatbots, I talked to my friends during the past 30 days... | Much less → Much more (1–5) |
+| Q16_infl_social | Because of AI chatbots, I used social media during the past 30 days... | Much less → Much more (1–5) |
+| Q17_infl_google | Because of AI chatbots, I used Google search during the past 30 days... | Much less → Much more (1–5) |
+| Q18_curious | Because of AI chatbots, during the past 30 days I think I was... [curious] | Much less → Much more (1–5) |
+| Q19_lazy | Because of AI chatbots, during the past 30 days I think I was... [lazy] | Much less → Much more (1–5) |
+| Q20_confident | Because of AI chatbots, were you more or less confident when you talked to people during the past 30 days? | Much less → Much more (1–5) |
+| Q21_interest | Because of AI chatbots, were you more or less interested in talking to people during the past 30 days? | Much less → Much more (1–5) |
+| Q22_peer_ai | How many of your friends interact with AI chatbots as if they were a friend? | None → All (1–5) |
+| S1_tryfirst | Before asking AI for help, I try to work through the task on my own first. | Never → Always (0–4) |
+| S2_passive | I tend to use what AI gives me without making changes. | Never → Always (0–4) |
+| S3_socratic | I ask AI follow-up questions to make sure I really understand what it told me. | Never → Always (0–4) |
+| S4_learn | I use AI to learn things I'd have trouble learning on my own. | Never → Always (0–4) |
+| S5_check | Before I use what AI gives me, I check whether it's correct. | Never → Always (0–4) |
+| S6_revise | I keep asking AI to revise what it gives me until I get exactly what I want. | Never → Always (0–4) |
+| S7_feedback | I ask AI for feedback on my ideas or writing the way I'd ask a coach or teacher. | Never → Always (0–4) |
+| A1_lesssay | When I use AI, I feel like I have less say in how my work gets done. | Str. disagree → Str. agree (1–6) |
+| A2_notproducing | When I use AI, it feels like I'm not the one producing the work. | Str. disagree → Str. agree (1–6) |
+| A3_goals | AI helps me achieve work goals I couldn't reach on my own. | Str. disagree → Str. agree (1–6) |
+| A4_challenges | AI makes me feel like I can take on bigger challenges. | Str. disagree → Str. agree (1–6) |
+| A5_meaningful | Because of AI, my work feels less meaningful than it used to. | Str. disagree → Str. agree (1–6) |
+| A6_careabout | AI does parts of my work that I actually care about doing myself. | Str. disagree → Str. agree (1–6) |
+| A7_lesspride | I take less pride in my work when AI helps with it. | Str. disagree → Str. agree (1–6) |
+| D1_disappeared | If all AI tools suddenly disappeared, how well could you do your typical work? | Much worse → Much better (1–5) |
+| D2_skill | Compared to 6 months ago, my ability to do work without AI has... | Gotten much worse → Gotten much better (1–5) |
+| ID1_enjoy | How much do you enjoy your work? | Not at all → A great deal (1–5) |
+| ID2_identity | How important is your work to who you are as a person? | Not at all → Extremely important (1–5) |
+| ID3_pride | How much do you pride yourself on your work? | Not at all → A great deal (1–5) |
+| ID4_creativity | How much of your work requires you to come up with your own ideas or approaches? | None of it → All of it (1–5) |
+| SA1_party | Going to a party makes me feel... | Very nervous → Very relaxed (1–5) |
+| SA2_attention | Being the center of attention makes me feel... | Very nervous → Very relaxed (1–5) |
+| SA3_strangers | Talking with people I don't know very well makes me feel... | Very nervous → Very relaxed (1–5) |
+| L1_lonely | During the past 30 days, how lonely did you feel? | Not at all → Extremely lonely (1–5) |
+| L2_nofriends | During the past 30 days, how often did you feel like you didn't have any friends? | Never → Always (0–4) |
+| L3_leftout | During the past 30 days, how often did you feel left out? | Never → Always (0–4) |
+| POL1_polarization | Do you think AI chatbots will make political disagreements in America better or worse? | Much worse → Much better (1–5) |
+| POL_policy | Does your school or employer have a policy about AI chatbot use? | Categorical |
+| POL_changed | In the last 12 months, has this policy changed? | Y/N |
+| LIFE_breakup | In the last 12 months, have you experienced a breakup? | Y/N |
+| LIFE_relocate | In the last 12 months, have you relocated to a new city or neighborhood? | Y/N |
+| W4_invite | We're developing an AI coach to help people become better writers. Would you be interested in trying it? | Y/N |
+| D_income | What is your total annual household income, before taxes? | Categorical |
+| D_income_feel | Which of the following best describes your own feelings about your household's income these days? | Categorical |
+| D_enrolled | Are you currently enrolled in higher education? | Y/N |
+| D_education | What is the highest level of school you have completed or the highest degree you have received? | Categorical |
+| D_age | How old are you? | Numeric |
+| D_gender | What is your gender? | Categorical |

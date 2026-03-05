@@ -420,7 +420,7 @@ All items use the same 5-point frequency scale:
 #### Crutch
 **26.** I tend to **use what AI gives me without making changes**. (W4_S4 — passive consumption)
 
-**27.** I use AI to **avoid tasks I find difficult or challenging**. (W4_S5 — difficulty avoidance)
+**27.** I use AI to **avoid tasks I find difficult**. (W4_S5 — difficulty avoidance)
 
 **28.** I find it **hard to get started** on tasks without asking AI first. (W4_S6 — initiation dependency)
 
@@ -483,7 +483,7 @@ Scale for all items: Strongly disagree / Disagree / Slightly disagree / Slightly
 
 **37a.** When I use AI, I still feel **in control** of how my [schoolwork/work] gets done. (W4_A8a) [positive rewrite of 30a]
 
-**38a.** When I use AI, the final product still feels like **it's mine**. (W4_A9a) [positive rewrite of 31a]
+**38a.** When I use AI, I still feel like **I'm the one doing** the [schoolwork/work]. (W4_A9a) [positive rewrite of 31a]
 
 **39a.** When I use AI, I feel like the work still reflects **my own thinking and approach**. (W4_A10a) [TENTATIVE]
 
@@ -498,13 +498,16 @@ Scale for all items: Strongly disagree / Disagree / Slightly disagree / Slightly
 **40a.** AI helps me produce **higher-quality** [schoolwork/work] than I could on my own. (W4_A11a) [TENTATIVE]
 
 #### Meaning
-[Randomize 34a–36a]
+[Randomize 34a, 36a]
 
 **34a.** Because of AI, my [schoolwork/work] feels **less meaningful** than it used to. (W4_A5a)
 
-**35a.** AI does parts of my [schoolwork/work] that I actually **care about doing myself**. (W4_A6a)
-
 **36a.** I take **less pride** in my [schoolwork/work] when AI helps with it. (W4_A7a)
+
+#### Standalone (not part of meaning scale)
+
+**35a.** AI does parts of my [schoolwork/work] that I actually **care about doing myself**. (W4_A6a)
+> NOTE: Moved out of meaning scale — this measures an objective fact (what AI handles) rather than a subjective feeling. Kept as standalone predictor.
 
 ---
 
@@ -521,7 +524,7 @@ Scale for all items: Strongly disagree / Disagree / Slightly disagree / Slightly
 
 **37b.** When I use AI, I still feel **in control** of how things in my personal life get done. (W4_A8b) [positive rewrite of 30b]
 
-**38b.** When I use AI for personal tasks, the result still feels like **it's mine**. (W4_A9b) [positive rewrite of 31b]
+**38b.** When I use AI for personal tasks, I still feel like **I'm the one doing things myself**. (W4_A9b) [positive rewrite of 31b]
 
 **39b.** When I use AI, I feel like what I do still reflects **my own thinking and approach**. (W4_A10b) [TENTATIVE]
 
@@ -535,13 +538,15 @@ Scale for all items: Strongly disagree / Disagree / Slightly disagree / Slightly
 **40b.** AI helps me get **better results** in my personal life than I could on my own. (W4_A11b) [TENTATIVE]
 
 #### Meaning
-[Randomize 34b–36b]
+[Randomize 34b, 36b]
 
 **34b.** Because of AI, things I do in my personal life feel **less meaningful** than they used to. (W4_A5b)
 
-**35b.** AI handles personal tasks that I actually **care about doing myself**. (W4_A6b)
-
 **36b.** I take **less pride** in what I accomplish when AI helps with it. (W4_A7b)
+
+#### Standalone (not part of meaning scale)
+
+**35b.** AI handles personal tasks that I actually **care about doing myself**. (W4_A6b)
 
 ---
 
@@ -560,7 +565,7 @@ Scale for all items: Strongly disagree / Disagree / Slightly disagree / Slightly
 
 **37c.** If I used AI, I think I would still feel **in control** of how my [schoolwork/work] gets done. (W4_A8c) [positive rewrite of 30c]
 
-**38c.** If I used AI, I think the final product would still feel like **it's mine**. (W4_A9c) [positive rewrite of 31c]
+**38c.** If I used AI, I think I would still feel like **I'm the one doing** the [schoolwork/work]. (W4_A9c) [positive rewrite of 31c]
 
 **39c.** If I used AI, I think the work would still reflect **my own thinking and approach**. (W4_A10c) [TENTATIVE]
 
@@ -574,13 +579,15 @@ Scale for all items: Strongly disagree / Disagree / Slightly disagree / Slightly
 **40c.** If I used AI, I think it could help me produce **higher-quality** [schoolwork/work] than I can on my own. (W4_A11c) [TENTATIVE]
 
 #### Meaning
-[Randomize 34c–36c]
+[Randomize 34c, 36c]
 
 **34c.** If I used AI, I think my [schoolwork/work] would feel **less meaningful**. (W4_A5c)
 
-**35c.** If I used AI, I think it would do parts of my [schoolwork/work] that I actually **care about doing myself**. (W4_A6c)
-
 **36c.** If I used AI, I think I would take **less pride** in my [schoolwork/work]. (W4_A7c)
+
+#### Standalone (not part of meaning scale)
+
+**35c.** If I used AI, I think it would do parts of my [schoolwork/work] that I actually **care about doing myself**. (W4_A6c)
 
 ---
 

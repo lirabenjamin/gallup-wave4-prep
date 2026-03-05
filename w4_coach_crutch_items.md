@@ -14,7 +14,7 @@ Intro: "People use AI in many different ways. There are no right or wrong answer
 | 24 | **Coach** — Socratic | I ask AI **follow-up questions** to make sure I really understand what it told me. |
 | 25 | **Coach** — evaluation | Before I use what AI gives me, I **check whether it's correct**. |
 | 26 | **Crutch** — passive consumption | I tend to **use what AI gives me without making changes**. |
-| 27 | **Crutch** — difficulty avoidance | I use AI to **avoid tasks I find difficult or challenging**. |
+| 27 | **Crutch** — difficulty avoidance | I use AI to **avoid tasks I find difficult**. |
 | 28 | **Crutch** — initiation dependency | I find it **hard to get started** on tasks without asking AI first. |
 
 ---
