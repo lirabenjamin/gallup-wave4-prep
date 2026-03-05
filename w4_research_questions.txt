@@ -1,0 +1,56 @@
+Wave 4 Research Questions — Gallup Panel
+
+
+1. Has AI hollowed out the experience of work?
+We use school/workplace AI policy as an instrumental variable for AI use intensity. The policy affects how much someone uses AI but was set by administrators, not by the individual — so it isolates the causal effect of AI use from personality confounds. We test whether AI use reduces process agency (feeling in control of how work gets done) while simultaneously increasing outcome agency (achieving goals). We expect this tradeoff to be strongest for people whose work is creative rather than routine.
+Key variables: AI use frequency (X, instrumented by policy), process agency and outcome agency (Y), task type as moderator. All new to W4.
+
+
+2. Who uses AI as coach vs. crutch?
+We use W1 personality traits — ambition, grit, social anxiety, and prior beliefs about AI — to predict which participants fall into productive ("coach") vs. passive ("crutch") AI use profiles in W4. Coach users try tasks on their own first, check AI output for correctness, iterate, and seek feedback. Crutch users copy-paste without reading or editing. The open-ended question provides qualitative validation of these profiles.
+Key variables: W1 traits (X), W4 strategy profile (Y). Strategy items and open-ended are new to W4.
+
+
+3a. Is AI replacing Google search?
+We track within-person change in "AI instead of Google" frequency across all four waves. Preliminary data from W1-W3 suggests this substitution may be plateauing (V=0.15). W4 confirms or reverses the trend.
+Key variables: AI-instead-of-Google frequency (repeated measure, W1-W4).
+
+
+3b. Are beliefs about AI shifting as people use it more?
+We test whether people who increased their AI use between W1 and W4 also changed their beliefs about whether AI makes people lazier or stupider. Adoption timing moderates: early adopters (started before 2023) may have already updated their beliefs, while recent adopters are still shifting.
+Key variables: Change in AI use W1-W4 (X), change in beliefs (Y), adoption timing as moderator. Adoption timing is new to W4.
+
+
+3c. Do AI use strategies buffer against negative trajectories?
+We test whether the coach-vs-crutch distinction matters for well-being. Among people who increased their AI use across waves, coach users should maintain well-being and loneliness levels, while crutch users should show declines. This provides the practical punchline: it's not whether you use AI, it's how.
+Key variables: Change in AI use (X), change in well-being and loneliness (Y), W4 strategy profile as moderator.
+
+
+4. Does heavy AI use erode self-efficacy?
+We construct a cumulative exposure measure (frequency x daily time spent x months since first use) and test whether higher exposure predicts greater perceived dependency — feeling unable to do work without AI, and feeling that skills have declined. We use school/workplace policy as an instrument: the policy pushes AI use up or down for institutional reasons unrelated to the individual's confidence, so the estimated effect is causal. Strategy profile moderates: coach users should resist dependency even at high exposure levels.
+Key variables: Cumulative AI exposure (X, instrumented by policy), dependency items (Y), strategy profile as moderator. Dependency items, daily duration, and adoption timing are new to W4.
+
+
+5. Does AI make work meaningful or meaningless?
+We test whether AI's effect on the meaning of work depends on what AI replaces. If AI handles the tedious parts of work, meaning should be preserved or enhanced. If AI takes over the parts people actually enjoy doing, meaning drops. Task type moderates: for creative workers, AI is more likely to replace the enjoyable parts; for routine workers, AI removes drudgery.
+Key variables: AI use (X), whether AI replaces enjoyable vs. tedious work (mediator), meaning of work (Y), task type as moderator. Meaning items and task type are new to W4.
+
+
+6. Will AI worsen political polarization?
+We measure a nationally representative baseline: what share of Gen Z thinks AI will make political division in America better vs. worse? This descriptive finding motivates the synthetic contact intervention study. AI use frequency and strategy profile may moderate this belief — people who engage with AI more deeply may see more potential for AI to bridge divides.
+Key variables: Polarization belief (Y), AI use and strategy as moderators. Polarization item is new to W4.
+
+
+7. Does AI become a social substitute after life disruption?
+A breakup or relocation is a shock to someone's social world that happens for reasons unrelated to AI use. We compare people who experienced these shocks to otherwise-similar people who didn't, using W1-W3 loneliness as the pre-shock baseline. If people who went through a breakup subsequently increased their AI-as-friend use, and if that increase is associated with changes in loneliness, we have evidence that AI functions as a social substitute — and we can assess whether that substitution helps or hurts recovery.
+Key variables: Breakup or relocation (shock/treatment), AI-as-friend and AI-for-advice use (mediator), loneliness (Y), W1-W3 loneliness as baseline. Life event items are new to W4.
+
+
+8. Do school AI bans actually work?
+We compare people under AI bans to those with no policy on AI use frequency, forbidden use, dependency, and agency. This is a natural experiment: the policy was set by institutions, not chosen by individuals. People who experienced a policy change in the last 12 months are especially valuable — they provide within-person before/after variation, and the date of the change lets us pin down when behavior shifted.
+Key variables: AI policy (treatment), AI use, forbidden use, dependency, agency (outcomes). Policy and policy change items are new to W4.
+
+
+9. Nationally representative descriptives
+The Gallup panel's representative sampling enables population-level claims that cannot be made with convenience samples. What share of Gen Z uses AI for schoolwork? How many feel less in control of their work? What fraction have never had AI help them learn something? These descriptives satisfy the funder mandate and generate media-facing findings.
+Key variables: All items, especially new W4 measures.

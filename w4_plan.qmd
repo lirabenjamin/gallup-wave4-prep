@@ -1,0 +1,189 @@
+---
+title: "Wave 4 Planning: Proposed Items and Design"
+author: "Ben Lira Luttges"
+date: "2026-03-03"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+---
+
+# Overview
+
+This document summarizes all Wave 4 planning decisions made during the W1-W3 exploratory analysis (March 2026). It consolidates proposed items, experimental design, and strategic rationale so the next session can pick up from here without needing the full analysis conversation history.
+
+**Total proposed**: 23 survey items + 1 between-subjects vignette experiment (4 DVs)
+
+**Scope decision**: Ben said to push for a large module and cut back as needed. The current proposal assumes reasonably generous space.
+
+**Priority if cuts are needed**: Protect Learning/Effort (#1-4) and Agency (#8-12) first --- these are the most direct operationalizations and cannot be approximated from existing data.
+
+# Key W1-W3 Findings That Inform W4
+
+These findings from the exploratory report (35 research questions across 3 waves) directly shaped the W4 items.
+
+## Beliefs predict behavior longitudinally
+
+W1 "AI makes people smarter" belief predicts W3 productivity use ($\beta_{std}$ = .106, p < .001), controlling for W1 usage. This is a small-to-medium effect --- for every 1 SD increase in belief, W3 productivity use increases 0.11 SD above baseline. W4 should measure whether these belief-driven adopters also *learn* more from AI.
+
+## The ambition paradox
+
+Ambitious users believe AI makes PEOPLE lazy but report it makes THEM less lazy. They use AI instrumentally for productivity while avoiding social uses. They show sophisticated metacognition. W4 items should capture whether this self-regulation advantage persists or erodes over time.
+
+## Social use predicts ennui; productivity use does not
+
+W1 social AI use (friend, romantic, advice) predicts W3 ennui ($\beta_{std}$ = .117, p < .001). Productivity use shows no such effect ($\beta_{std}$ = -.039, NS). Item-level: social use predicts feeling lost ($\beta$ = .166), going through the motions ($\beta$ = .117), and feeling stuck ($\beta$ = .111). This dissociation is central to W4 design.
+
+**Implication**: Don't drop ennui. Pivot from "does AI use cause ennui?" to "does social AI use specifically predict disconnection?" The "going through the motions" item aligns with process agency.
+
+## Overall AI use slightly decreased W1 to W3
+
+Usage declined slightly (M change = -0.08, p < .001), driven almost entirely by Google replacement (d = -0.15) and image/video use (d = -0.07). Writing, math, and prohibited use were flat. People tried AI search, decided it wasn't better than Google, and pulled back. Creative/generative uses held steady.
+
+## W1 ambition modestly predicts W3 productivity use
+
+$\beta_{std}$ = .029, p = .036 --- very small. Ambition barely moves the needle beyond baseline usage. W4 items should test whether ambition predicts *quality* of AI use (metacognition, learning transfer) rather than just quantity.
+
+## Factor structure of W1 usage: 3 factors
+
+Parallel analysis supports 3 factors:
+
+1. **Productivity** (Google .80, Work .89, Writing .74, Math .50)
+2. **Relational** (Friend .88, Advice .69)
+3. **Transgressive** (Prohibited .66, Romantic .40)
+
+The 2-factor solution (57% variance) cleanly separates Productivity from Social/Personal. Ben's productivity-vs-social intuition is confirmed.
+
+# Proposed W4 Items
+
+## Module A: Coach Not Crutch --- Learning and Effort (7 items)
+
+These items test whether AI use leads to learning gains or dependency. They leverage W1-W3 predictors (usage intensity, beliefs, ambition) as antecedents of W4 outcomes.
+
+| # | Item Text | Scale | Construct |
+|---|-----------|-------|-----------|
+| 1 | "When I use AI to help with schoolwork or work, I usually learn the material well enough to do it without AI next time." | 1-6 agree | Learning transfer |
+| 2 | "When AI is available, I spend less effort on the task itself and more effort checking and improving AI's output." | 1-6 agree | Effort reallocation (not reduction) |
+| 3 | "If all AI tools were suddenly unavailable, how well could you do your typical work or school tasks?" | 1-5 (much worse to just as well) | AI dependency |
+| 4 | "Compared to 6 months ago, my ability to do [writing/math/research] WITHOUT AI has..." | 1-5 (gotten much worse to gotten much better) | Perceived skill trajectory |
+| 5 | "When I use AI, I mostly want to..." (a) get better results, (b) learn how to do things better, (c) both equally | 3-option forced choice | Performance vs. learning orientation |
+| 6 | "I have tried doing a task WITHOUT AI that I normally use AI for, just to see if I still could." | 1-6 agree | Self-testing behavior |
+| 7 | "Using AI makes me better at knowing what questions to ask." | 1-6 agree | Metacognitive benefit |
+
+**Longitudinal design**: W1 AI beliefs (smart/lazy) and usage $\rightarrow$ W3 ennui $\rightarrow$ W4 dependency and skill trajectory. Three-wave mediation testing whether early beliefs predict downstream learning outcomes through disengagement.
+
+## Module B: Agency Framework --- Process vs. Outcome (7 items)
+
+These items directly operationalize the process/outcome agency distinction. Combined with W3 ennui data, they enable testing the full theoretical model.
+
+| # | Item Text | Scale | Construct |
+|---|-----------|-------|-----------|
+| 8 | "AI helps me achieve goals I couldn't reach on my own." | 1-6 agree | Outcome agency |
+| 9 | "When I use AI, I still feel in control of HOW the work gets done." | 1-6 agree | Process agency |
+| 10 | "The satisfaction I get from completing a task depends on how much of the work I did myself." | 1-6 agree | Process-meaning link |
+| 11 | "I'm comfortable letting AI handle most of the work as long as the result is good." | 1-6 agree | Delegation comfort |
+| 12 | "When I submit something AI helped create, it still feels like MY work." | 1-6 agree | Authorship/ownership |
+| 13 | "Using AI for [task] feels like cheating." | 1-6 agree | Integrity concern |
+| 14 | "AI takes care of the boring parts so I can focus on the interesting parts." | 1-6 agree | Complementary framing |
+
+**Key prediction**: W1 usage intensity $\rightarrow$ W3 ennui (going through the motions) $\rightarrow$ W4 low process agency + low authorship feeling. Ambitious users (W1) may be buffered --- they maintain process agency because they view AI as a tool rather than a replacement.
+
+**Ben's note on ennui**: Originally considered dropping ennui since overall AI use did not predict W3 ennui. Decision: keep it, because **social** use does predict ennui. For the Agency paper, the W4 process/outcome agency items should capture task-specific agency loss (more specific than general ennui). The social use $\rightarrow$ ennui pathway is its own story.
+
+## Module C: Parent-Child AI Dynamics (4 items)
+
+| # | Item Text | Scale | Construct |
+|---|-----------|-------|-----------|
+| 15 | "My parent/guardian actively helps me figure out how to use AI effectively." [child] / "I actively help my child learn to use AI well." [parent] | 1-6 agree | Parental scaffolding |
+| 16 | "My parent/guardian and I disagree about when or how I should use AI." [child] | 1-6 agree | Intergenerational conflict |
+| 17 | "My parent/guardian uses AI regularly for their own work." [child estimate] | yes/no + frequency | Parental modeling |
+| 18 | "How often do you and your parent/guardian talk about AI?" | 1-5 frequency | Communication frequency |
+
+**W1-W3 context**: Family beliefs correlate modestly (r = .20-.30). Parent worry shows limited association with actual child usage regulation. These items dig into the *mechanism* of transmission: active scaffolding vs. passive modeling vs. conflict.
+
+## Module D: AI Effectiveness / Who Benefits (5 items)
+
+| # | Item Text | Scale | Construct |
+|---|-----------|-------|-----------|
+| 19 | "When AI gives me an answer, I usually check whether it's correct before using it." | 1-6 agree | Critical evaluation |
+| 20 | "I know how to write prompts that get me useful results from AI." | 1-6 agree | Prompting skill |
+| 21 | "I can tell the difference between when AI is being helpful and when it's giving me bad information." | 1-6 agree | AI metacognition |
+| 22 | "Using AI has taught me new things I didn't know before." | 1-6 agree | Perceived learning from AI |
+| 23 | "I feel more capable as a person because of AI." | 1-6 agree | Empowerment |
+
+**Longitudinal payoff**: W1 ambition + beliefs $\rightarrow$ W3 ennui (or not) $\rightarrow$ W4 AI literacy/metacognition. Who develops effective AI use patterns vs. passive dependency? This directly informs Coach Not Crutch.
+
+# Between-Subjects Vignette Experiment
+
+## Design
+
+2 (AI involvement: human-only vs. AI-assisted) $\times$ 2 (outcome quality: average vs. excellent)
+
+Inspired by Dunigan's W2 letter vignette but targeting **learning and agency** rather than relationships. Ben decided not to analyze Dunigan's W2 data directly (it's Dunigan's work) but to model a parallel design for his own questions.
+
+## Age-appropriate versions
+
+Ben's decision: use both student and worker versions, split by age.
+
+- **Ages 12-18** (student version): A student completing a school assignment
+- **Ages 18-28** (worker version): An employee completing a work project
+
+| Condition | Student Version (12-18) | Worker Version (18-28) |
+|-----------|------------------------|----------------------|
+| Human-only, Average | "Alex spent 4 hours writing an essay and received a B." | "Alex spent 8 hours writing a report and their manager rated it average." |
+| Human-only, Excellent | "Alex spent 4 hours writing an essay and received an A+." | "Alex spent 8 hours writing a report and their manager rated it excellent." |
+| AI-assisted, Average | "Alex used AI to help write an essay (1 hour) and received a B." | "Alex used AI to help write a report (2 hours) and their manager rated it average." |
+| AI-assisted, Excellent | "Alex used AI to help write an essay (1 hour) and received an A+." | "Alex used AI to help write a report (2 hours) and their manager rated it excellent." |
+
+## Dependent variables (0-10 scales)
+
+1. "How much did Alex learn from this assignment/project?"
+2. "How much skill did Alex develop?"
+3. "How impressive is Alex's achievement?"
+4. "How much credit does Alex deserve?"
+
+## Predictions
+
+AI-assisted conditions will be rated lower on learning and credit even when outcome quality is equal or superior. This directly tests lay theories about the coach-not-crutch question.
+
+- The student version maps to the **Coach Not Crutch** paper
+- The worker version maps to the **Agency Framework** paper
+- Individual differences from W1 (ambition, own AI use, beliefs) moderate these judgments --- heavy AI users may discount the learning penalty, while ambitious users may apply it more harshly
+
+# Priority Summary
+
+| Module | Items | Priority | Paper |
+|--------|-------|----------|-------|
+| Learning/Effort (Coach Not Crutch) | 7 | Highest | Coach Not Crutch |
+| Process/Outcome Agency | 7 | Highest | Agency Framework |
+| AI Effectiveness | 5 | High | Both papers |
+| Parent-Child | 4 | Medium | Student projects |
+| Between-subjects vignette | 4 DVs | High | Coach Not Crutch + Agency |
+
+# Decisions Made
+
+These decisions were made during the March 3 conversation and should be treated as settled:
+
+1. **Ennui**: Keep it in W4, but pivot framing. Social AI use $\rightarrow$ ennui is real; overall use $\rightarrow$ ennui is null. Process/outcome agency items (#8-14) should capture task-specific agency loss, which is more specific than general ennui.
+2. **Vignette scope**: Both student and worker versions (age-split), not one or the other.
+3. **Item budget**: Start large (23 + vignette), cut back as needed. If forced to cut, protect items #1-4 (learning) and #8-12 (agency) first.
+4. **Dunigan's W2 vignette**: Not analyzed (his work). Used as inspiration for design only.
+5. **Dropped W1 items**: Loneliness (Q39-41) and several social AI use items (friend Q11, romantic Q12, advice Q13) were dropped after W1. These analyses are W1-only. No proxies sought for W2/W3.
+
+# Open Questions for Next Session
+
+1. **Item refinement**: Some items may need rewording for the 12-14 age range. Review cognitive complexity.
+2. **Vignette power**: With 4 conditions and age-split, how large is each cell? Need to confirm sample size per condition.
+3. **Item order effects**: Should agency items come before or after the vignette? The vignette might prime different responses.
+4. **Ennui follow-up**: Should W4 re-administer the W3 ennui scale to test stability? Or is that redundant with the new agency items?
+5. **Scoring**: Items #5 is forced-choice (3 options). Consider whether this should be converted to a continuous scale for easier analysis.
+
+# Relevant Files
+
+- `analysis/report.qmd` --- Full exploratory report with 35 research questions (Part 14 contains the W4 items)
+- `analysis/report.html` --- Rendered report
+- `src/clean_longitudinal.R` --- Longitudinal data cleaning (W1-W3)
+- `data/longitudinal_clean.rds` --- Clean longitudinal dataset (10,995 rows, 4,790 unique respondents)
+- `comms.md` --- Conversation log with all Q&A decisions
+- `todo.md` --- Task completion log
